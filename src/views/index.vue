@@ -1,13 +1,65 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 
-const isScrolled = ref(false)
+const router = useRouter()
 
 onMounted(() => {
-  window.addEventListener('scroll', () => {
-    isScrolled.value = window.scrollY > 50
+  // 等待 DOM 完全渲染后再初始化动画
+  nextTick(() => {
+    // 添加滚动触发的动画
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    }
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in')
+          
+          // 如果是统计卡片，触发数字计数动画
+          const statNumber = entry.target.querySelector('.stat-number')
+          if (statNumber) {
+            animateNumber(statNumber)
+          }
+          
+          observer.unobserve(entry.target)
+        }
+      })
+    }, observerOptions)
+    
+    // 观察所有需要动画的元素
+    const animatedElements = document.querySelectorAll('.animate-on-scroll')
+    animatedElements.forEach(el => observer.observe(el))
   })
 })
+
+// 数字计数动画函数
+const animateNumber = (element) => {
+  const text = element.textContent
+  const match = text.match(/(\d+)([K+]*)/)
+  if (!match) return
+  
+  const targetNumber = parseInt(match[1])
+  const suffix = match[2] || ''
+  const duration = 2000 // 2秒
+  const steps = 60
+  const increment = targetNumber / steps
+  let current = 0
+  let step = 0
+  
+  const timer = setInterval(() => {
+    step++
+    current = Math.min(Math.floor(increment * step), targetNumber)
+    element.textContent = current + suffix
+    
+    if (step >= steps) {
+      clearInterval(timer)
+      element.textContent = targetNumber + suffix
+    }
+  }, duration / steps)
+}
 
 const scrollToSection = (id) => {
   const element = document.getElementById(id)
@@ -15,127 +67,55 @@ const scrollToSection = (id) => {
     element.scrollIntoView({ behavior: 'smooth' })
   }
 }
+
+const goToOwPage = () => {
+  router.push('/ow')
+}
 </script>
 
 <template>
   <div class="home-page">
-    <!-- 导航栏 -->
-    <nav :class="{ 'scrolled': isScrolled }" class="navbar">
-      <div class="nav-container">
-        <div class="logo">
-          <span class="logo-icon">🎨</span>
-          <span class="logo-text">图图小破站</span>
-        </div>
-        <ul class="nav-menu">
-          <li><a @click.prevent="scrollToSection('home')" href="#home">首页</a></li>
-          <li><a @click.prevent="scrollToSection('features')" href="#features">功能</a></li>
-          <li><a @click.prevent="scrollToSection('about')" href="#about">关于</a></li>
-          <li><a @click.prevent="scrollToSection('contact')" href="#contact">联系</a></li>
-        </ul>
-      </div>
-    </nav>
-
     <!-- 英雄区域 -->
     <section id="home" class="hero">
       <div class="hero-background">
         <div class="gradient-orb orb-1"></div>
         <div class="gradient-orb orb-2"></div>
         <div class="gradient-orb orb-3"></div>
+        <div class="floating-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
+          <div class="shape shape-4"></div>
+          <div class="shape shape-5"></div>
+        </div>
       </div>
       <div class="hero-content">
         <h1 class="hero-title">
           <span class="title-line">欢迎来到</span>
-          <span class="title-main">图图小破站</span>
+          <span class="title-main">游戏宅天地</span>
         </h1>
-        <p class="hero-subtitle">一个充满创意与想象力的设计平台</p>
-        <p class="hero-description">探索无限可能，创造属于你的精彩世界</p>
+        <p class="hero-subtitle">热爱游戏，热爱生活</p>
+        <p class="hero-description">宅天地</p>
         <div class="hero-buttons">
           <button class="btn btn-primary" @click="scrollToSection('features')">开始探索</button>
           <button class="btn btn-secondary" @click="scrollToSection('about')">了解更多</button>
         </div>
-      </div>
-      <div class="scroll-indicator">
-        <div class="mouse"></div>
-      </div>
-    </section>
-
-    <!-- 功能介绍 -->
-    <section id="features" class="features">
-      <div class="container">
-        <h2 class="section-title">核心功能</h2>
-        <p class="section-subtitle">发现图图小破站的强大功能</p>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">✨</div>
-            <h3>创意设计</h3>
-            <p>丰富的设计工具和模板，让你的创意轻松实现</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🚀</div>
-            <h3>快速高效</h3>
-            <p>简洁的操作界面，快速上手，高效完成工作</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🎯</div>
-            <h3>精准定位</h3>
-            <p>智能推荐系统，为你找到最合适的设计方案</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">💎</div>
-            <h3>精美模板</h3>
-            <p>海量精美模板库，满足各种设计需求</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🌐</div>
-            <h3>云端同步</h3>
-            <p>多设备云端同步，随时随地访问你的作品</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🔒</div>
-            <h3>安全可靠</h3>
-            <p>企业级安全保障，保护你的创作成果</p>
-          </div>
+        <div class="hero-image">
+          <img src="/home.png" alt="首页展示图" />
         </div>
       </div>
     </section>
 
-    <!-- 特色亮点 -->
-    <section class="highlights">
+    <!-- 守望先锋角斗领域 -->
+    <section id="features" class="features">
       <div class="container">
-        <div class="highlights-content">
-          <div class="highlights-text">
-            <h2 class="section-title">为什么选择图图小破站？</h2>
-            <div class="highlight-item">
-              <div class="highlight-number">01</div>
-              <div class="highlight-content">
-                <h3>专业团队</h3>
-                <p>由资深设计师和开发工程师组成的专业团队，持续优化产品体验</p>
-              </div>
-            </div>
-            <div class="highlight-item">
-              <div class="highlight-number">02</div>
-              <div class="highlight-content">
-                <h3>用户至上</h3>
-                <p>以用户需求为中心，不断收集反馈，持续改进产品功能</p>
-              </div>
-            </div>
-            <div class="highlight-item">
-              <div class="highlight-number">03</div>
-              <div class="highlight-content">
-                <h3>创新技术</h3>
-                <p>采用最新的前端技术栈，提供流畅的用户体验</p>
-              </div>
-            </div>
+        <h2 class="ow-section-title animate-on-scroll">守望先锋角斗领域</h2>
+        <div class="ow-section animate-on-scroll">
+          <div class="ow-content">
+            <p class="ow-description clickable" @click="goToOwPage">军械库模拟器</p>
           </div>
-          <div class="highlights-visual">
-            <div class="visual-card">
-              <div class="card-glow"></div>
-              <div class="card-content">
-                <div class="card-icon">🎨</div>
-                <h4>图图小破站</h4>
-                <p>让设计更简单</p>
-              </div>
-            </div>
+          <div class="ow-image">
+            <img src="/ow-jiaodou-1.png" alt="守望先锋角斗领域" />
           </div>
         </div>
       </div>
@@ -144,23 +124,23 @@ const scrollToSection = (id) => {
     <!-- 关于我们 -->
     <section id="about" class="about">
       <div class="container">
-        <h2 class="section-title">关于图图小破站</h2>
-        <div class="about-content">
+        <h2 class="section-title animate-on-scroll">关于图图小破站</h2>
+        <div class="about-content animate-on-scroll">
           <div class="about-text">
             <p class="about-intro">
               图图小破站是一个致力于为创作者提供优质设计工具和服务的平台。
               我们相信每个人都有无限的创造力，我们的使命就是帮助每个人轻松实现自己的创意想法。
             </p>
             <div class="stats">
-              <div class="stat-item">
+              <div class="stat-item animate-on-scroll">
                 <div class="stat-number">10K+</div>
                 <div class="stat-label">活跃用户</div>
               </div>
-              <div class="stat-item">
+              <div class="stat-item animate-on-scroll">
                 <div class="stat-number">50K+</div>
                 <div class="stat-label">设计作品</div>
               </div>
-              <div class="stat-item">
+              <div class="stat-item animate-on-scroll">
                 <div class="stat-number">100+</div>
                 <div class="stat-label">精美模板</div>
               </div>
@@ -208,75 +188,6 @@ const scrollToSection = (id) => {
   overflow-x: hidden;
 }
 
-/* 导航栏 */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding: 1rem 0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  border-bottom: 1px solid transparent;
-}
-
-.navbar.scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-  border-bottom-color: rgba(0, 0, 0, 0.05);
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #6366f1;
-}
-
-.logo-icon {
-  font-size: 2rem;
-}
-
-.logo-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.nav-menu {
-  display: flex;
-  list-style: none;
-  gap: 2rem;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-menu a {
-  color: #334155;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-  cursor: pointer;
-}
-
-.nav-menu a:hover {
-  color: #6366f1;
-}
-
 /* 英雄区域 */
 .hero {
   position: relative;
@@ -295,20 +206,138 @@ const scrollToSection = (id) => {
   right: 0;
   bottom: 0;
   z-index: -1;
+  overflow: hidden;
+}
+
+.hero-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(110, 231, 183, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(52, 211, 153, 0.1) 0%, transparent 50%);
+  animation: backgroundShift 15s infinite ease-in-out;
+}
+
+@keyframes backgroundShift {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* 浮动装饰元素 */
+.floating-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(110, 231, 183, 0.3) 0%, rgba(52, 211, 153, 0.2) 100%);
+  filter: blur(1px);
+  animation: floatShape 20s infinite ease-in-out;
+}
+
+.shape-1 {
+  width: 80px;
+  height: 80px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 15s;
+}
+
+.shape-2 {
+  width: 60px;
+  height: 60px;
+  top: 60%;
+  left: 20%;
+  animation-delay: 2s;
+  animation-duration: 18s;
+}
+
+.shape-3 {
+  width: 100px;
+  height: 100px;
+  top: 40%;
+  right: 15%;
+  animation-delay: 4s;
+  animation-duration: 20s;
+}
+
+.shape-4 {
+  width: 50px;
+  height: 50px;
+  bottom: 30%;
+  left: 50%;
+  animation-delay: 6s;
+  animation-duration: 16s;
+}
+
+.shape-5 {
+  width: 70px;
+  height: 70px;
+  top: 10%;
+  right: 30%;
+  animation-delay: 8s;
+  animation-duration: 22s;
+}
+
+@keyframes floatShape {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translate(30px, -40px) rotate(90deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-20px, 30px) rotate(180deg);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translate(40px, 20px) rotate(270deg);
+    opacity: 0.5;
+  }
 }
 
 .gradient-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.5;
-  animation: float 20s infinite ease-in-out;
+  opacity: 0.6;
+  animation: float 20s infinite ease-in-out, pulse 4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 .orb-1 {
   width: 500px;
   height: 500px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
   top: -200px;
   left: -200px;
   animation-delay: 0s;
@@ -317,7 +346,7 @@ const scrollToSection = (id) => {
 .orb-2 {
   width: 400px;
   height: 400px;
-  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
   bottom: -150px;
   right: -150px;
   animation-delay: 5s;
@@ -326,7 +355,7 @@ const scrollToSection = (id) => {
 .orb-3 {
   width: 300px;
   height: 300px;
-  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
   top: 50%;
   right: 10%;
   animation-delay: 10s;
@@ -334,13 +363,13 @@ const scrollToSection = (id) => {
 
 @keyframes float {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1) rotate(0deg);
   }
   33% {
-    transform: translate(30px, -30px) scale(1.1);
+    transform: translate(30px, -30px) scale(1.1) rotate(120deg);
   }
   66% {
-    transform: translate(-20px, 20px) scale(0.9);
+    transform: translate(-20px, 20px) scale(0.9) rotate(240deg);
   }
 }
 
@@ -348,10 +377,23 @@ const scrollToSection = (id) => {
   text-align: center;
   max-width: 800px;
   z-index: 1;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-title {
   margin-bottom: 1.5rem;
+  animation: fadeInUp 1s ease-out 0.2s both;
 }
 
 .title-line {
@@ -360,13 +402,14 @@ const scrollToSection = (id) => {
   color: #64748b;
   font-weight: 400;
   margin-bottom: 0.5rem;
+  animation: fadeInUp 1s ease-out 0.3s both;
 }
 
 .title-main {
   display: block;
   font-size: 4.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 50%, #34d399 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -378,12 +421,14 @@ const scrollToSection = (id) => {
   color: #475569;
   margin-bottom: 1rem;
   font-weight: 500;
+  animation: fadeInUp 1s ease-out 0.4s both;
 }
 
 .hero-description {
   font-size: 1.1rem;
   color: #64748b;
   margin-bottom: 2.5rem;
+  animation: fadeInUp 1s ease-out 0.5s both;
 }
 
 .hero-buttons {
@@ -391,6 +436,46 @@ const scrollToSection = (id) => {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 3rem;
+  animation: fadeInUp 1s ease-out 0.6s both;
+}
+
+.hero-image {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  animation: fadeInUp 1s ease-out 0.8s both;
+}
+
+.hero-image img {
+  width: 90vw;
+  max-width: 90vw;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+}
+
+.hero-image img::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(110, 231, 183, 0.2) 0%, rgba(52, 211, 153, 0.2) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.hero-image img:hover {
+  transform: scale(1.03) translateY(-5px);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
 }
 
 .btn {
@@ -404,26 +489,80 @@ const scrollToSection = (id) => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 25px rgba(16, 185, 129, 0.6);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(1);
+  animation: pulse 0.3s ease;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
 }
 
 .btn-secondary {
   background: white;
-  color: #6366f1;
-  border: 2px solid #6366f1;
+  color: #10b981;
+  border: 2px solid #10b981;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.btn-secondary:hover::before {
+  left: 0;
 }
 
 .btn-secondary:hover {
-  background: #6366f1;
+  background: #10b981;
   color: white;
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .scroll-indicator {
@@ -436,7 +575,7 @@ const scrollToSection = (id) => {
 .mouse {
   width: 24px;
   height: 40px;
-  border: 2px solid #6366f1;
+  border: 2px solid #10b981;
   border-radius: 12px;
   position: relative;
 }
@@ -449,7 +588,7 @@ const scrollToSection = (id) => {
   transform: translateX(-50%);
   width: 4px;
   height: 8px;
-  background: #6366f1;
+  background: #10b981;
   border-radius: 2px;
   animation: scroll 2s infinite;
 }
@@ -479,6 +618,31 @@ const scrollToSection = (id) => {
   text-align: center;
   margin-bottom: 1rem;
   color: #1e293b;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  border-radius: 2px;
+  animation: expandLine 0.8s ease-out;
+}
+
+@keyframes expandLine {
+  from {
+    width: 0;
+  }
+  to {
+    width: 60px;
+  }
 }
 
 .section-subtitle {
@@ -488,149 +652,140 @@ const scrollToSection = (id) => {
   margin-bottom: 3rem;
 }
 
-/* 功能介绍 */
+/* 守望先锋角斗领域 */
 .features {
   padding: 6rem 0;
-  background: #f8fafc;
+  background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-.feature-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
-  border-color: #6366f1;
-}
-
-.feature-icon {
+.ow-section-title {
   font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.feature-card h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 3rem;
   color: #1e293b;
+  line-height: 1.2;
 }
 
-.feature-card p {
-  color: #64748b;
-  line-height: 1.6;
-}
-
-/* 特色亮点 */
-.highlights {
-  padding: 6rem 0;
-  background: white;
-}
-
-.highlights-content {
+.ow-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 4rem;
   align-items: center;
   margin-top: 3rem;
 }
 
-.highlight-item {
+.ow-content {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  flex-direction: column;
+  justify-content: center;
+  animation: slideInLeft 0.8s ease-out;
 }
 
-.highlight-number {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #6366f1;
-  opacity: 0.2;
-  line-height: 1;
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.highlight-content h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #1e293b;
-}
-
-.highlight-content p {
+.ow-description {
+  font-size: 1.8rem;
   color: #64748b;
   line-height: 1.6;
+  transition: all 0.3s ease;
 }
 
-.highlights-visual {
+.ow-description.clickable {
+  cursor: pointer;
+  color: #10b981;
+  font-weight: 600;
+  position: relative;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.ow-description.clickable::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.ow-description.clickable:hover {
+  color: #059669;
+  transform: translateX(5px);
+  background: rgba(110, 231, 183, 0.1);
+}
+
+.ow-description.clickable:hover::after {
+  width: 100%;
+}
+
+.ow-image {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.visual-card {
+  animation: slideInRight 0.8s ease-out;
+  overflow: visible;
   position: relative;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  padding: 3rem;
-  border-radius: 1.5rem;
-  color: white;
-  width: 100%;
-  max-width: 400px;
-  overflow: hidden;
 }
 
-.card-glow {
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  animation: rotate 20s linear infinite;
-}
-
-@keyframes rotate {
+@keyframes slideInRight {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateX(30px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-.card-content {
+.ow-image img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
-  z-index: 1;
-  text-align: center;
+  transform: scale(1.2);
 }
 
-.card-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.ow-image img::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(110, 231, 183, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
-.card-content h4 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.card-content p {
-  opacity: 0.9;
+.ow-image img:hover {
+  transform: scale(1.25) translateY(-5px);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
 }
 
 /* 关于我们 */
 .about {
   padding: 6rem 0;
-  background: #f8fafc;
+  background: linear-gradient(180deg, #dcfce7 0%, #f0fdf4 100%);
 }
 
 .about-content {
@@ -659,23 +814,65 @@ const scrollToSection = (id) => {
   background: white;
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(110, 231, 183, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%);
+  transition: left 0.3s ease;
+}
+
+.stat-item:hover::before {
+  left: 0;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
 }
 
 .stat-number {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #6366f1;
+  color: #10b981;
   margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-number {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-label {
   color: #64748b;
   font-size: 1rem;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.stat-item:hover .stat-label {
+  color: #10b981;
+  font-weight: 600;
 }
 
 /* 页脚 */
 .footer {
-  background: #1e293b;
+  background: linear-gradient(135deg, #065f46 0%, #047857 100%);
   color: white;
   padding: 4rem 0 2rem;
 }
@@ -690,7 +887,7 @@ const scrollToSection = (id) => {
 .footer-section h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #6366f1;
+  color: #6ee7b7;
 }
 
 .footer-section h4 {
@@ -722,14 +919,64 @@ const scrollToSection = (id) => {
 }
 
 .footer-section ul li a:hover {
-  color: #6366f1;
+  color: #6ee7b7;
 }
 
 .footer-bottom {
   text-align: center;
   padding-top: 2rem;
-  border-top: 1px solid #334155;
-  color: #94a3b8;
+  border-top: 1px solid rgba(110, 231, 183, 0.3);
+  color: #a7f3d0;
+}
+
+/* 滚动触发动画 */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.animate-on-scroll.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 为不同元素添加不同的延迟 */
+.animate-on-scroll:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.animate-on-scroll:nth-child(2) {
+  transition-delay: 0.2s;
+}
+
+.animate-on-scroll:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.animate-on-scroll:nth-child(4) {
+  transition-delay: 0.4s;
+}
+
+/* 统计卡片的特殊动画 */
+.stats .stat-item.animate-on-scroll {
+  transform: translateY(30px) scale(0.9);
+}
+
+.stats .stat-item.animate-on-scroll.animate-in {
+  transform: translateY(0) scale(1);
+}
+
+.stats .stat-item.animate-on-scroll:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+.stats .stat-item.animate-on-scroll:nth-child(2) {
+  transition-delay: 0.2s;
+}
+
+.stats .stat-item.animate-on-scroll:nth-child(3) {
+  transition-delay: 0.3s;
 }
 
 /* 响应式设计 */
@@ -742,21 +989,29 @@ const scrollToSection = (id) => {
     font-size: 1.2rem;
   }
   
-  .nav-menu {
-    gap: 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .highlights-content {
-    grid-template-columns: 1fr;
-  }
-  
   .stats {
     grid-template-columns: 1fr;
   }
   
-  .features-grid {
+  .ow-section {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .ow-section-title {
+    font-size: 2rem;
+  }
+  
+  .ow-description {
+    font-size: 1.2rem;
+  }
+  
+  .ow-image img {
+    transform: scale(1);
+  }
+  
+  .ow-image img:hover {
+    transform: scale(1.05) translateY(-5px);
   }
 }
 </style>
