@@ -1,47 +1,106 @@
 <script setup>
-import { computed } from 'vue'
-import { gameStore } from '../../../stores/gameStore'
-import { Shield, Zap, Heart, Droplet } from 'lucide-vue-next'
+import { computed, reactive } from 'vue'
+import { heroStatConfigs } from '../../../data/ow/baseInfo.js'
 
-const stats = computed(() => gameStore.heroStats)
+// 将配置转换为响应式对象
+const stats = reactive(
+  heroStatConfigs.reduce((acc, config) => {
+    acc[config.key] = config.value
+    return acc
+  }, {})
+)
+
+// 从配置中生成配置数组
+const statConfigs = computed(() => {
+  return heroStatConfigs.map(config => ({
+    ...config,
+    value: stats[config.key] // 使用响应式的值
+  }))
+})
 </script>
 
 <template>
-  <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm sticky top-6">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">英雄数据面板</h2>
+  <div class="hero-panel">
+    <h2 class="hero-panel__title">英雄数据面板</h2>
     
-    <div class="space-y-4">
-      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <div class="flex items-center gap-3">
-          <Zap :size="20" class="text-gray-700" />
-          <span class="text-gray-700">伤害</span>
+    <div class="hero-panel__list">
+      <div 
+        v-for="config in statConfigs" 
+        :key="config.key"
+        class="hero-panel__item"
+      >
+        <div class="hero-panel__label-wrapper">
+          <span class="hero-panel__label">{{ config.label }}</span>
         </div>
-        <span class="text-xl font-bold text-gray-900">{{ stats.damage }}%</span>
-      </div>
-      
-      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <div class="flex items-center gap-3">
-          <Shield :size="20" class="text-gray-700" />
-          <span class="text-gray-700">冷却缩减</span>
-        </div>
-        <span class="text-xl font-bold text-gray-900">{{ stats.cooldown }}%</span>
-      </div>
-      
-      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <div class="flex items-center gap-3">
-          <Heart :size="20" class="text-red-600" />
-          <span class="text-gray-700">生命值</span>
-        </div>
-        <span class="text-xl font-bold text-red-600">{{ stats.health }}</span>
-      </div>
-      
-      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <div class="flex items-center gap-3">
-          <Droplet :size="20" class="text-pink-600" />
-          <span class="text-gray-700">吸血</span>
-        </div>
-        <span class="text-xl font-bold text-pink-600">{{ stats.lifesteal }}%</span>
+        <span :class="['hero-panel__value', config.color]">
+          {{ config.value }}{{ config.unit }}
+        </span>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.hero-panel {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid rgb(229, 231, 235);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  position: sticky;
+  top: 1.5rem;
+  /* max-height: calc(100vh - 3rem); */
+  overflow-y: auto;
+}
+
+.hero-panel__title {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: rgb(17, 24, 39);
+  margin-bottom: 1.5rem;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  padding-bottom: 0.5rem;
+}
+
+.hero-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hero-panel__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: rgb(249, 250, 251);
+  border-radius: 0.5rem;
+  border: 1px solid rgb(229, 231, 235);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.hero-panel__item:hover {
+  background-color: rgb(243, 244, 246);
+}
+
+.hero-panel__label-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.hero-panel__label {
+  color: rgb(55, 65, 81);
+  font-weight: 500;
+}
+
+.hero-panel__value {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+</style>
