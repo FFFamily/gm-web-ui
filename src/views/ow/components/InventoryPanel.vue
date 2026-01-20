@@ -1,8 +1,7 @@
 <script setup>
 import { computed } from 'vue'
-import { gameStore } from '../../../stores/gameStore'
+import { gameStore } from '~/stores/gameStore'
 import { Package } from 'lucide-vue-next'
-
 const inventory = computed(() => gameStore.inventory)
 const inventorySlots = computed(() => {
   const slots = Array(6).fill(null)
@@ -23,10 +22,15 @@ const qualityColors = {
 
 <template>
   <div class="inventory-panel">
-    <h2 class="inventory-title">
-      <Package :size="24" />
-      已购装备栏
-    </h2>
+    <div class="inventory-header">
+      <h2 class="inventory-title">
+        <Package :size="14" />
+        已购装备栏
+      </h2>
+      <div class="inventory-footer">
+        已使用: {{ inventory.length }} / 6
+      </div>
+    </div>
     
     <div class="inventory-grid">
       <div
@@ -53,47 +57,51 @@ const qualityColors = {
         <div v-else class="inventory-slot-empty-text">空</div>
       </div>
     </div>
-    
-    <div class="inventory-footer">
-      已使用: {{ inventory.length }} / 6
-    </div>
   </div>
 </template>
 
 <style scoped>
 .inventory-panel {
   background-color: white;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
+  border-radius: 0.25rem;
+  padding: 0.375rem;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+}
+
 .inventory-title {
-  font-size: 1.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #111827;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.25rem;
+  margin: 0;
 }
 
 .inventory-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.25rem;
 }
 
 .inventory-slot {
   aspect-ratio: 1;
-  border-radius: 0.5rem;
-  border-width: 2px;
+  border-radius: 0.25rem;
+  border-width: 1.5px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.125rem;
+  min-height: 0;
 }
 
 .inventory-slot--green {
@@ -124,15 +132,18 @@ const qualityColors = {
 .inventory-item-name {
   font-size: 0.75rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
+  line-height: 1.2;
+  word-break: break-all;
 }
 
 .inventory-item-stats {
   font-size: 0.625rem;
+  line-height: 1.2;
 }
 
 .inventory-item-stats > div {
-  margin-bottom: 0.125rem;
+  margin-bottom: 0.0625rem;
 }
 
 .inventory-item-stats > div:last-child {
@@ -145,9 +156,18 @@ const qualityColors = {
 }
 
 .inventory-footer {
-  margin-top: 1rem;
-  font-size: 0.875rem;
+  font-size: 0.625rem;
   color: #4b5563;
-  text-align: center;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .inventory-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .inventory-slot {
+    aspect-ratio: 1;
+  }
 }
 </style>

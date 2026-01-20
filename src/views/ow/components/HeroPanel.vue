@@ -44,21 +44,22 @@ const statConfigs = computed(() => {
 .hero-panel {
   background-color: white;
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border: 1px solid rgb(229, 231, 235);
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   position: sticky;
   top: 1.5rem;
-  /* max-height: calc(100vh - 3rem); */
+  max-height: calc(100vh - 3rem);
   overflow-y: auto;
+  width: 100%;
 }
 
 .hero-panel__title {
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
   font-weight: 700;
   color: rgb(17, 24, 39);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   position: sticky;
   top: 0;
   background-color: white;
@@ -75,7 +76,7 @@ const statConfigs = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem;
+  padding: 0.625rem;
   background-color: rgb(249, 250, 251);
   border-radius: 0.5rem;
   border: 1px solid rgb(229, 231, 235);
@@ -99,8 +100,8 @@ const statConfigs = computed(() => {
 }
 
 .hero-panel__value {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
   font-weight: 700;
 }
 </style>
