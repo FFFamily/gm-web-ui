@@ -1,8 +1,11 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { gameStore } from '~/stores/gameStore'
 import { Package } from 'lucide-vue-next'
+
 const inventory = computed(() => gameStore.inventory)
+const hoveredSlot = ref(null)
+
 const inventorySlots = computed(() => {
   const slots = Array(6).fill(null)
   inventory.value.forEach((item, index) => {
@@ -17,6 +20,14 @@ const qualityColors = {
   green: 'inventory-slot--green',
   blue: 'inventory-slot--blue',
   purple: 'inventory-slot--purple'
+}
+
+// 获取图片路径
+const getItemImage = (item) => {
+  if (item && item.img) {
+    return item.img.startsWith('/') ? item.img : `/${item.img}`
+  }
+  return null
 }
 </script>
 
@@ -42,19 +53,41 @@ const qualityColors = {
             ? qualityColors[slot.quality]
             : 'inventory-slot--empty'
         ]"
+        @mouseenter="hoveredSlot = slot ? index : null"
+        @mouseleave="hoveredSlot = null"
       >
         <div v-if="slot" class="inventory-slot-content">
-          <div class="inventory-item-name">{{ slot.name }}</div>
-          <div class="inventory-item-stats">
-            <div
-              v-for="(value, key) in slot.stats"
-              :key="key"
-            >
-              +{{ value }}{{ key === 'damage' || key === 'cooldown' || key === 'lifesteal' ? '%' : '' }}
-            </div>
+          <img
+            v-if="getItemImage(slot)"
+            :src="getItemImage(slot)"
+            :alt="slot.name"
+            class="inventory-item-image"
+          />
+          <div v-else class="inventory-item-placeholder">
+            {{ slot.name.charAt(0) }}
           </div>
         </div>
         <div v-else class="inventory-slot-empty-text">空</div>
+        
+        <!-- 悬浮提示框 -->
+        <div
+          v-if="hoveredSlot === index && slot && slot.stats && Object.keys(slot.stats).length > 0"
+          class="inventory-item-tooltip"
+        >
+          <div class="tooltip-name">{{ slot.name }}</div>
+          <div class="tooltip-stats">
+            <div
+              v-for="(value, key) in slot.stats"
+              :key="key"
+              class="tooltip-stat"
+            >
+              <span class="tooltip-stat-label">{{ key }}</span>
+              <span class="tooltip-stat-value">
+                +{{ value }}{{ key === 'damage' || key === 'cooldown' || key === 'lifesteal' ? '%' : '' }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -126,28 +159,31 @@ const qualityColors = {
 }
 
 .inventory-slot-content {
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.125rem;
 }
 
-.inventory-item-name {
-  font-size: 0.75rem;
+.inventory-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inventory-item-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.125rem;
-  line-height: 1.2;
-  word-break: break-all;
-}
-
-.inventory-item-stats {
-  font-size: 0.625rem;
-  line-height: 1.2;
-}
-
-.inventory-item-stats > div {
-  margin-bottom: 0.0625rem;
-}
-
-.inventory-item-stats > div:last-child {
-  margin-bottom: 0;
+  color: currentColor;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .inventory-slot-empty-text {
@@ -159,6 +195,78 @@ const qualityColors = {
   font-size: 0.625rem;
   color: #4b5563;
   margin: 0;
+}
+
+.inventory-item-tooltip {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.75rem;
+  background-color: #1f2937;
+  color: white;
+  border-radius: 0.375rem;
+  z-index: 100;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  animation: tooltipFadeIn 0.2s ease-out;
+  pointer-events: none;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.inventory-item-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -0.375rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.375rem solid transparent;
+  border-right: 0.375rem solid transparent;
+  border-bottom: 0.375rem solid #1f2937;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.tooltip-name {
+  font-weight: 700;
+  font-size: 0.75rem;
+  margin-bottom: 0.375rem;
+  color: #f3f4f6;
+  text-align: center;
+}
+
+.tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tooltip-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.625rem;
+  gap: 0.5rem;
+}
+
+.tooltip-stat-label {
+  color: #d1d5db;
+}
+
+.tooltip-stat-value {
+  color: #60a5fa;
+  font-weight: 600;
 }
 
 @media (max-width: 1024px) {

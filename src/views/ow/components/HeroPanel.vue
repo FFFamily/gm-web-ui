@@ -1,20 +1,12 @@
 <script setup>
-import { computed, reactive } from 'vue'
-import { heroStatConfigs } from '../../../data/ow/baseInfo.js'
+import { computed } from 'vue'
+import { gameStore } from '../../../stores/gameStore.js'
 
-// 将配置转换为响应式对象
-const stats = reactive(
-  heroStatConfigs.reduce((acc, config) => {
-    acc[config.key] = config.value
-    return acc
-  }, {})
-)
-
-// 从配置中生成配置数组
+// 从 gameStore 中生成配置数组
 const statConfigs = computed(() => {
-  return heroStatConfigs.map(config => ({
+  return gameStore.heroStatConfigs.map(config => ({
     ...config,
-    value: stats[config.key] // 使用响应式的值
+    value: gameStore.heroStats[config.key] || 0 // 从 gameStore 获取当前值
   }))
 })
 </script>

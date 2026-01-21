@@ -1,18 +1,17 @@
 import { reactive } from 'vue'
 import { storeItems } from '../data/storeItems.js'
+import { heroStatConfigs, initialGold, heroInfo } from '../data/ow/baseInfo.js'
 
 // 游戏状态管理
 export const gameStore = reactive({
   // 玩家资产
-  gold: 3500,
+  gold: initialGold,
   
-  // 英雄属性
-  heroStats: {
-    damage: 100,      // 伤害百分比
-    cooldown: 0,      // 冷却缩减百分比
-    health: 200,      // 生命值
-    lifesteal: 0      // 吸血百分比
-  },
+  // 英雄属性配置
+  heroStatConfigs: heroStatConfigs,
+  
+  // 英雄属性值（从配置中提取初始值）
+  heroStats: { ...heroInfo },
   
   // 已购清单（最大6个槽位）
   inventory: [],
@@ -40,6 +39,9 @@ export const gameStore = reactive({
       Object.keys(item.stats).forEach(key => {
         if (this.heroStats[key] !== undefined) {
           this.heroStats[key] += item.stats[key]
+        } else {
+          // 如果属性不存在，初始化为0后累加
+          this.heroStats[key] = item.stats[key]
         }
       })
     }
