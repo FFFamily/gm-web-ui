@@ -1,12 +1,26 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { ArrowRight, Sparkles, Swords } from 'lucide-vue-next'
 
 const router = useRouter()
 
 onMounted(() => {
   // 等待 DOM 完全渲染后再初始化动画
   nextTick(() => {
+    const reducedMotion =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    // 对“减少动态效果”的用户：直接展示内容，避免滚动/数字动画
+    if (reducedMotion) {
+      document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+        el.classList.add('animate-in')
+      })
+      return
+    }
+
     // 添加滚动触发的动画
     const observerOptions = {
       threshold: 0.1,
@@ -90,18 +104,30 @@ const goToOwPage = () => {
         </div>
       </div>
       <div class="hero-content">
+        <div class="hero-badge">
+          <Sparkles class="hero-badge-icon" aria-hidden="true" />
+          <span>新功能：守望先锋军械库模拟器</span>
+        </div>
         <h1 class="hero-title">
           <span class="title-line">欢迎来到</span>
           <span class="title-main">游戏宅天地</span>
         </h1>
         <p class="hero-subtitle">热爱游戏，热爱生活</p>
-        <p class="hero-description">宅天地</p>
+        <p class="hero-description">一个收纳小工具与灵感的轻量游戏站点。</p>
         <div class="hero-buttons">
-          <button class="btn btn-primary" @click="scrollToSection('features')">开始探索</button>
-          <button class="btn btn-secondary" @click="scrollToSection('about')">了解更多</button>
+          <button class="btn btn-primary" @click="scrollToSection('features')">
+            开始探索
+            <ArrowRight class="btn-icon" aria-hidden="true" />
+          </button>
+          <button class="btn btn-secondary" @click="scrollToSection('about')">
+            了解更多
+            <ArrowRight class="btn-icon" aria-hidden="true" />
+          </button>
         </div>
         <div class="hero-image">
-          <img src="/home.png" alt="首页展示图" />
+          <div class="image-frame">
+            <img src="/home.png" alt="首页展示图" />
+          </div>
         </div>
       </div>
     </section>
@@ -110,12 +136,22 @@ const goToOwPage = () => {
     <section id="features" class="features">
       <div class="container">
         <h2 class="ow-section-title animate-on-scroll">守望先锋角斗领域</h2>
+        <p class="section-subtitle animate-on-scroll">军械库 · 配装 · 数据，一站式整理</p>
         <div class="ow-section animate-on-scroll">
           <div class="ow-content">
-            <p class="ow-description clickable" @click="goToOwPage">军械库模拟器</p>
+            <p class="ow-description">
+              快速试配武器与配件，查看关键数值与手感差异。
+            </p>
+            <button class="ow-link" type="button" @click="goToOwPage">
+              <Swords class="ow-link-icon" aria-hidden="true" />
+              军械库模拟器
+              <ArrowRight class="ow-link-arrow" aria-hidden="true" />
+            </button>
           </div>
           <div class="ow-image">
-            <img src="/ow-jiaodou-1.png" alt="守望先锋角斗领域" />
+            <div class="image-frame image-frame--compact">
+              <img src="/ow-jiaodou-1.png" alt="守望先锋角斗领域" />
+            </div>
           </div>
         </div>
       </div>
@@ -125,24 +161,25 @@ const goToOwPage = () => {
     <section id="about" class="about">
       <div class="container">
         <h2 class="section-title animate-on-scroll">关于图图小破站</h2>
+        <p class="section-subtitle animate-on-scroll">轻量、好用、顺手：把注意力留给游戏与生活</p>
         <div class="about-content animate-on-scroll">
           <div class="about-text">
             <p class="about-intro">
-              图图小破站是一个致力于为创作者提供优质设计工具和服务的平台。
-              我们相信每个人都有无限的创造力，我们的使命就是帮助每个人轻松实现自己的创意想法。
+              这里是一个“边玩边做”的小站：把常用的小工具、数据与灵感收在一起，
+              让你更快进入状态，把时间留给游戏与生活。
             </p>
             <div class="stats">
               <div class="stat-item animate-on-scroll">
                 <div class="stat-number">10K+</div>
-                <div class="stat-label">活跃用户</div>
+                <div class="stat-label">活跃玩家</div>
               </div>
               <div class="stat-item animate-on-scroll">
                 <div class="stat-number">50K+</div>
-                <div class="stat-label">设计作品</div>
+                <div class="stat-label">攻略收藏</div>
               </div>
               <div class="stat-item animate-on-scroll">
                 <div class="stat-number">100+</div>
-                <div class="stat-label">精美模板</div>
+                <div class="stat-label">配装方案</div>
               </div>
             </div>
           </div>
@@ -156,7 +193,7 @@ const goToOwPage = () => {
         <div class="footer-content">
           <div class="footer-section">
             <h3>图图小破站</h3>
-            <p>让设计更简单，让创意更自由</p>
+            <p>让工具更顺手，让快乐更纯粹</p>
           </div>
           <div class="footer-section">
             <h4>快速链接</h4>
@@ -186,6 +223,16 @@ const goToOwPage = () => {
 .home-page {
   width: 100%;
   overflow-x: hidden;
+  --c-text: #0f172a;
+  --c-muted: #475569;
+  --c-muted-2: #64748b;
+  --c-surface: rgba(255, 255, 255, 0.78);
+  --c-border: rgba(16, 185, 129, 0.18);
+  --c-primary: #10b981;
+  --c-primary-2: #34d399;
+  --c-primary-3: #6ee7b7;
+  --shadow-lg: 0 18px 55px rgba(2, 44, 34, 0.16);
+  color: var(--c-text);
 }
 
 /* 英雄区域 */
@@ -219,6 +266,18 @@ const goToOwPage = () => {
   background: radial-gradient(circle at 20% 50%, rgba(110, 231, 183, 0.1) 0%, transparent 50%),
               radial-gradient(circle at 80% 80%, rgba(52, 211, 153, 0.1) 0%, transparent 50%);
   animation: backgroundShift 15s infinite ease-in-out;
+}
+
+.hero-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.55) 0%, transparent 60%),
+    repeating-linear-gradient(to right, rgba(16, 185, 129, 0.06) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(to bottom, rgba(16, 185, 129, 0.06) 0 1px, transparent 1px 64px);
+  opacity: 0.28;
+  pointer-events: none;
 }
 
 @keyframes backgroundShift {
@@ -375,9 +434,31 @@ const goToOwPage = () => {
 
 .hero-content {
   text-align: center;
-  max-width: 800px;
+  max-width: 1100px;
   z-index: 1;
   animation: fadeInUp 1s ease-out;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 999px;
+  background: rgba(240, 253, 244, 0.85);
+  border: 1px solid var(--c-border);
+  color: var(--c-muted);
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);
+  backdrop-filter: blur(10px);
+  margin: 0 auto 1.5rem;
+  animation: fadeInUp 1s ease-out 0.1s both;
+}
+
+.hero-badge-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--c-primary);
 }
 
 @keyframes fadeInUp {
@@ -394,12 +475,14 @@ const goToOwPage = () => {
 .hero-title {
   margin-bottom: 1.5rem;
   animation: fadeInUp 1s ease-out 0.2s both;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 .title-line {
   display: block;
   font-size: 1.5rem;
-  color: #64748b;
+  color: var(--c-muted-2);
   font-weight: 400;
   margin-bottom: 0.5rem;
   animation: fadeInUp 1s ease-out 0.3s both;
@@ -418,7 +501,7 @@ const goToOwPage = () => {
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: #475569;
+  color: var(--c-muted);
   margin-bottom: 1rem;
   font-weight: 500;
   animation: fadeInUp 1s ease-out 0.4s both;
@@ -426,7 +509,7 @@ const goToOwPage = () => {
 
 .hero-description {
   font-size: 1.1rem;
-  color: #64748b;
+  color: var(--c-muted-2);
   margin-bottom: 2.5rem;
   animation: fadeInUp 1s ease-out 0.5s both;
 }
@@ -445,53 +528,90 @@ const goToOwPage = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
   animation: fadeInUp 1s ease-out 0.8s both;
 }
 
-.hero-image img {
-  width: 90vw;
-  max-width: 90vw;
-  height: auto;
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.image-frame {
   position: relative;
+  width: min(1100px, 92vw);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transform: translateZ(0);
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.2),
+    box-shadow 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
-.hero-image img::before {
+.image-frame--compact {
+  width: min(900px, 92vw);
+}
+
+.image-frame::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(110, 231, 183, 0.2) 0%, rgba(52, 211, 153, 0.2) 100%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(110, 231, 183, 0.25) 0%, transparent 55%),
+    radial-gradient(circle at 90% 80%, rgba(52, 211, 153, 0.2) 0%, transparent 55%),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(255, 255, 255, 0.05) 60%, rgba(16, 185, 129, 0.08) 100%);
+  opacity: 0.65;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
 }
 
-.hero-image img:hover {
-  transform: scale(1.03) translateY(-5px);
-  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+.image-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.image-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.image-frame:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 28px 80px rgba(2, 44, 34, 0.22);
+}
+
+.image-frame:hover::before {
+  opacity: 0.85;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 0.875rem 2rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgba(16, 185, 129, 0.35);
+  outline-offset: 4px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  background: linear-gradient(135deg, var(--c-primary-3) 0%, var(--c-primary-2) 50%, var(--c-primary) 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.35);
   position: relative;
   overflow: hidden;
 }
@@ -515,8 +635,8 @@ const goToOwPage = () => {
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 25px rgba(16, 185, 129, 0.6);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 16px 44px rgba(16, 185, 129, 0.45);
 }
 
 .btn-primary:active {
@@ -534,35 +654,20 @@ const goToOwPage = () => {
 }
 
 .btn-secondary {
-  background: white;
-  color: #10b981;
-  border: 2px solid #10b981;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--c-primary);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
-  transition: left 0.3s ease;
-  z-index: -1;
-}
-
-.btn-secondary:hover::before {
-  left: 0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
 .btn-secondary:hover {
-  background: #10b981;
-  color: white;
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(110, 231, 183, 0.08) 100%);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.55);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 40px rgba(16, 185, 129, 0.16);
 }
 
 .scroll-indicator {
@@ -617,7 +722,7 @@ const goToOwPage = () => {
   font-weight: 800;
   text-align: center;
   margin-bottom: 1rem;
-  color: #1e293b;
+  color: #0f172a;
   position: relative;
   display: inline-block;
   width: 100%;
@@ -647,7 +752,7 @@ const goToOwPage = () => {
 
 .section-subtitle {
   text-align: center;
-  color: #64748b;
+  color: var(--c-muted-2);
   font-size: 1.1rem;
   margin-bottom: 3rem;
 }
@@ -663,7 +768,7 @@ const goToOwPage = () => {
   font-weight: 800;
   text-align: center;
   margin-bottom: 3rem;
-  color: #1e293b;
+  color: #0f172a;
   line-height: 1.2;
 }
 
@@ -672,13 +777,14 @@ const goToOwPage = () => {
   grid-template-columns: 1fr 2fr;
   gap: 4rem;
   align-items: center;
-  margin-top: 3rem;
+  margin-top: 2.5rem;
 }
 
 .ow-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 1.25rem;
   animation: slideInLeft 0.8s ease-out;
 }
 
@@ -694,43 +800,51 @@ const goToOwPage = () => {
 }
 
 .ow-description {
-  font-size: 1.8rem;
-  color: #64748b;
+  font-size: 1.2rem;
+  color: var(--c-muted);
   line-height: 1.6;
-  transition: all 0.3s ease;
+  transition: color 0.25s ease;
 }
 
-.ow-description.clickable {
-  cursor: pointer;
-  color: #10b981;
-  font-weight: 600;
-  position: relative;
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: all 0.3s ease;
+.ow-link {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.1rem;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 253, 244, 0.9) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #065f46;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  box-shadow: 0 16px 50px rgba(16, 185, 129, 0.14);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
 
-.ow-description.clickable::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 3px;
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
-  transition: width 0.3s ease;
-  border-radius: 2px;
+.ow-link-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--c-primary);
 }
 
-.ow-description.clickable:hover {
-  color: #059669;
-  transform: translateX(5px);
-  background: rgba(110, 231, 183, 0.1);
+.ow-link-arrow {
+  width: 18px;
+  height: 18px;
+  color: #0f766e;
+  opacity: 0.85;
 }
 
-.ow-description.clickable:hover::after {
-  width: 100%;
+.ow-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 26px 70px rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.55);
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.95) 0%, rgba(220, 252, 231, 0.75) 100%);
+}
+
+.ow-link:focus-visible {
+  outline: 3px solid rgba(16, 185, 129, 0.35);
+  outline-offset: 4px;
 }
 
 .ow-image {
@@ -753,33 +867,12 @@ const goToOwPage = () => {
   }
 }
 
-.ow-image img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  position: relative;
-  transform: scale(1.2);
+.ow-image .image-frame--compact {
+  transform: translateZ(0) scale(1.08);
 }
 
-.ow-image img::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(110, 231, 183, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.ow-image img:hover {
-  transform: scale(1.25) translateY(-5px);
-  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+.ow-image .image-frame--compact:hover {
+  transform: translateY(-6px) scale(1.1);
 }
 
 /* 关于我们 */
@@ -795,7 +888,7 @@ const goToOwPage = () => {
 
 .about-intro {
   font-size: 1.2rem;
-  color: #475569;
+  color: var(--c-muted);
   line-height: 1.8;
   text-align: center;
   margin-bottom: 3rem;
@@ -811,12 +904,13 @@ const goToOwPage = () => {
 .stat-item {
   text-align: center;
   padding: 2rem;
-  background: white;
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 28px rgba(2, 44, 34, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 .stat-item::before {
@@ -835,14 +929,14 @@ const goToOwPage = () => {
 }
 
 .stat-item:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 55px rgba(16, 185, 129, 0.14);
 }
 
 .stat-number {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #10b981;
+  color: var(--c-primary);
   margin-bottom: 0.5rem;
   position: relative;
   z-index: 1;
@@ -858,7 +952,7 @@ const goToOwPage = () => {
 }
 
 .stat-label {
-  color: #64748b;
+  color: var(--c-muted-2);
   font-size: 1rem;
   position: relative;
   z-index: 1;
@@ -916,6 +1010,12 @@ const goToOwPage = () => {
   text-decoration: none;
   transition: color 0.3s ease;
   cursor: pointer;
+}
+
+.footer-section ul li a:focus-visible {
+  outline: 3px solid rgba(110, 231, 183, 0.35);
+  outline-offset: 4px;
+  border-radius: 6px;
 }
 
 .footer-section ul li a:hover {
@@ -1003,15 +1103,40 @@ const goToOwPage = () => {
   }
   
   .ow-description {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
   }
   
-  .ow-image img {
+  .ow-image .image-frame--compact {
     transform: scale(1);
   }
   
-  .ow-image img:hover {
-    transform: scale(1.05) translateY(-5px);
+  .ow-image .image-frame--compact:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shape,
+  .gradient-orb,
+  .hero-content,
+  .ow-content,
+  .ow-image,
+  .btn-primary::before {
+    animation: none !important;
+  }
+
+  .animate-on-scroll {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .btn,
+  .image-frame,
+  .stat-item,
+  .ow-link,
+  .ow-link {
+    transition: none !important;
   }
 }
 </style>

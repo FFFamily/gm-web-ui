@@ -11,7 +11,14 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5880
+    port: 5880,
+    proxy: {
+      // Dev: avoid CORS, keep frontend calling `/api/*`
+      '/api': {
+        target: 'http://localhost:8081',
+        changeOrigin: true
+      }
+    }
   },
   preview: {
     port: 5880

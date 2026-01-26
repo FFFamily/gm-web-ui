@@ -1,17 +1,62 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/index.vue'
-import OwPage from '../views/ow/index.vue'
+import { useAuthStore } from '~/stores/auth'
+import { pinia } from '~/stores/pinia'
+
+import SiteLayout from '~/layouts/SiteLayout.vue'
+import AdminLayout from '~/layouts/AdminLayout.vue'
+
+import Home from '~/views/index.vue'
+import OwPage from '~/views/ow/index.vue'
+
+import AdminLogin from '~/views/admin/Login.vue'
+import AdminForbidden from '~/views/admin/Forbidden.vue'
+
+import UsersList from '~/views/admin/users/UsersList.vue'
+import UserCreate from '~/views/admin/users/UserCreate.vue'
+import UserEdit from '~/views/admin/users/UserEdit.vue'
+import UserDetail from '~/views/admin/users/UserDetail.vue'
+
+import RolesList from '~/views/admin/roles/RolesList.vue'
+import RoleCreate from '~/views/admin/roles/RoleCreate.vue'
+import RoleEdit from '~/views/admin/roles/RoleEdit.vue'
+import RoleDetail from '~/views/admin/roles/RoleDetail.vue'
+
+import PermissionsList from '~/views/admin/permissions/PermissionsList.vue'
+import AuditList from '~/views/admin/audits/AuditList.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    component: SiteLayout,
+    children: [
+      { path: '', name: 'Home', component: Home },
+      { path: 'ow', name: 'Ow', component: OwPage }
+    ]
   },
+
+  // Admin: all routes are prefixed with `/admin/*`
+  { path: '/admin/login', name: 'AdminLogin', component: AdminLogin, meta: { title: '登录' } },
+  { path: '/admin/403', name: 'AdminForbidden', component: AdminForbidden, meta: { title: '无权限' } },
   {
-    path: '/ow',
-    name: 'Ow',
-    component: OwPage
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: '', redirect: '/admin/users' },
+
+      { path: 'users', name: 'AdminUsers', component: UsersList, meta: { title: '用户管理', perm: 'user:list' } },
+      { path: 'users/new', name: 'AdminUserCreate', component: UserCreate, meta: { title: '新增用户', perm: 'user:create' } },
+      { path: 'users/:id', name: 'AdminUserDetail', component: UserDetail, meta: { title: '用户详情', perm: 'user:read' } },
+      { path: 'users/:id/edit', name: 'AdminUserEdit', component: UserEdit, meta: { title: '编辑用户', perm: 'user:update' } },
+
+      { path: 'roles', name: 'AdminRoles', component: RolesList, meta: { title: '角色管理', perm: 'role:list' } },
+      { path: 'roles/new', name: 'AdminRoleCreate', component: RoleCreate, meta: { title: '新增角色', perm: 'role:create' } },
+      { path: 'roles/:id', name: 'AdminRoleDetail', component: RoleDetail, meta: { title: '角色详情', perm: 'role:read' } },
+      { path: 'roles/:id/edit', name: 'AdminRoleEdit', component: RoleEdit, meta: { title: '编辑角色', perm: 'role:update' } },
+
+      { path: 'permissions', name: 'AdminPermissions', component: PermissionsList, meta: { title: '权限点', perm: 'permission:list' } },
+      { path: 'audits', name: 'AdminAudits', component: AuditList, meta: { title: '审计日志', perm: 'audit:list' } }
+    ]
   }
 ]
 
@@ -20,4 +65,30 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach(async (to) => {
+  const auth = useAuthStore(pinia)
+  const requiresAuth = to.matched.some((r) => r.meta.requiresAuth)
+
+  if (requiresAuth && !auth.token) {
+    return { path: '/admin/login', query: { redirect: to.fullPath } }
+  }
+
+  if (requiresAuth && auth.token && !auth.me) {
+    try {
+      await auth.bootstrap()
+    } catch {
+      // bootstrap will be handled by http 401 interceptor as well
+      return { path: '/admin/login', query: { redirect: to.fullPath } }
+    }
+  }
+
+  const requiredPerm = [...to.matched].reverse().find((r) => r.meta.perm)?.meta.perm
+  if (requiresAuth && requiredPerm && !auth.hasPerm(requiredPerm)) {
+    return { path: '/admin/403' }
+  }
+
+  return true
+})
+
 export default router
+
