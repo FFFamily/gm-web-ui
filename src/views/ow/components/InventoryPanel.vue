@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { gameStore } from '~/stores/gameStore'
 import { Package } from 'lucide-vue-next'
+import { imageMap } from '~/assets/ow/imageMap.js'
 
 const inventory = computed(() => gameStore.inventory)
 const hoveredSlot = ref(null)
@@ -22,10 +23,10 @@ const qualityColors = {
   purple: 'inventory-slot--purple'
 }
 
-// 获取图片路径
+// 获取图片路径 - 使用 imageMap 获取已导入的图片 URL
 const getItemImage = (item) => {
-  if (item && item.img) {
-    return item.img.startsWith('/') ? item.img : `/${item.img}`
+  if (item && item.img && imageMap[item.img]) {
+    return imageMap[item.img]
   }
   return null
 }
@@ -93,11 +94,12 @@ const getItemImage = (item) => {
   </div>
 </template>
 
+
 <style scoped>
 .inventory-panel {
   background-color: white;
   border-radius: 0.25rem;
-  padding: 0.375rem;
+  padding: 0.5rem;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
@@ -121,7 +123,8 @@ const getItemImage = (item) => {
 
 .inventory-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(6, 1fr);
   gap: 0.25rem;
 }
 
@@ -135,6 +138,7 @@ const getItemImage = (item) => {
   justify-content: center;
   padding: 0.125rem;
   min-height: 0;
+  position: relative;
 }
 
 .inventory-slot--green {
@@ -165,13 +169,14 @@ const getItemImage = (item) => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 0.125rem;
+  border-radius: 50%;
 }
 
 .inventory-item-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
 }
 
 .inventory-item-placeholder {
@@ -180,15 +185,16 @@ const getItemImage = (item) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
   color: currentColor;
   background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
 }
 
 .inventory-slot-empty-text {
   color: #9ca3af;
-  font-size: 0.75rem;
+  font-size: 0.625rem;
 }
 
 .inventory-footer {
@@ -272,10 +278,49 @@ const getItemImage = (item) => {
 @media (max-width: 1024px) {
   .inventory-grid {
     grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
   }
   
   .inventory-slot {
     aspect-ratio: 1;
+  }
+}
+
+/* 优化整体尺寸，使组件更紧凑 */
+@media (min-width: 1024px) {
+  .inventory-panel {
+    padding: 0.5rem;
+    height: fit-content;
+  }
+  
+  .inventory-header {
+    margin-bottom: 0.5rem;
+  }
+  
+  .inventory-title {
+    font-size: 0.7rem;
+  }
+  
+  .inventory-footer {
+    font-size: 0.6rem;
+  }
+  
+  .inventory-grid {
+    gap: 0.375rem;
+    min-height: 0;
+  }
+  
+  .inventory-slot {
+    padding: 0.2rem;
+    min-height: 50px;
+  }
+  
+  .inventory-item-placeholder {
+    font-size: 0.875rem;
+  }
+  
+  .inventory-slot-empty-text {
+    font-size: 0.55rem;
   }
 }
 </style>

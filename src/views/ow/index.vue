@@ -11,21 +11,21 @@ import InventoryPanel from './components/InventoryPanel.vue'
         角斗领域：军械库模拟器
       </h1>
       
-      <!-- 上方：已购装备栏 -->
-      <div class="ow-inventory-section">
-        <InventoryPanel />
-      </div>
-      
-      <!-- 下方：英雄面板和军械库 -->
+      <!-- 三列布局：装备栏（左）、军械库（中）、面板（右） -->
       <div class="ow-main-grid">
-        <!-- 左侧：英雄数据面板 -->
-        <div class="ow-hero-section">
-          <HeroPanel />
+        <!-- 左侧：装备栏 -->
+        <div class="ow-inventory-section">
+          <InventoryPanel />
         </div>
         
-        <!-- 右侧：军械库 -->
+        <!-- 中间：军械库 -->
         <div class="ow-store-section">
           <StoreComponent />
+        </div>
+        
+        <!-- 右侧：英雄数据面板 -->
+        <div class="ow-hero-section">
+          <HeroPanel />
         </div>
       </div>
     </div>
@@ -90,10 +90,6 @@ import InventoryPanel from './components/InventoryPanel.vue'
   color: #111827;
 }
 
-.ow-inventory-section {
-  margin-bottom: 1.5rem;
-}
-
 .ow-main-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -102,15 +98,20 @@ import InventoryPanel from './components/InventoryPanel.vue'
 
 @media (min-width: 1024px) {
   .ow-main-grid {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 90px 1fr 280px;
   }
 }
 
-.ow-hero-section {
+.ow-inventory-section {
+
   min-width: 0;
 }
 
 .ow-store-section {
+  min-width: 0;
+}
+
+.ow-hero-section {
   min-width: 0;
 }
 </style>

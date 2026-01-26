@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { gameStore, storeItems } from '../../../stores/gameStore'
 import { ShoppingCart, Coins } from 'lucide-vue-next'
+import { imageMap } from '../../../assets/ow/imageMap.js'
 
 const activeTab = ref('weapon')
 const hoveredItem = ref(null)
@@ -80,10 +81,10 @@ const getStatValue = (key, value) => {
   return percentKeys.includes(key) ? `+${value}%` : `+${value}`
 }
 
-// 获取图片路径
+// 获取图片路径 - 使用 imageMap 获取已导入的图片 URL
 const getItemImage = (item) => {
-  if (item.img) {
-    return item.img.startsWith('/') ? item.img : `/${item.img}`
+  if (item.img && imageMap[item.img]) {
+    return imageMap[item.img]
   }
   return null
 }
