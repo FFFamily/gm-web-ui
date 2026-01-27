@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { gameStore, storeItems } from '../../../stores/gameStore'
+import { gameStore } from '../../../stores/gameStore'
 import { ShoppingCart, Coins } from 'lucide-vue-next'
 import { imageMap } from '../../../assets/ow/imageMap.js'
 
@@ -21,7 +21,7 @@ const getItemCategory = (item) => {
 
 // 过滤当前 tab 的物品
 const filteredItems = computed(() => {
-  return storeItems.filter(item => getItemCategory(item) === activeTab.value)
+  return (gameStore.items || []).filter(item => getItemCategory(item) === activeTab.value)
 })
 
 // 按品质分组
@@ -83,6 +83,7 @@ const getStatValue = (key, value) => {
 
 // 获取图片路径 - 使用 imageMap 获取已导入的图片 URL
 const getItemImage = (item) => {
+  if (item?.imgUrl) return item.imgUrl
   if (item.img && imageMap[item.img]) {
     return imageMap[item.img]
   }

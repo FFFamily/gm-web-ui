@@ -8,6 +8,8 @@ import {
   Setting,
   Lock,
   Notebook,
+  FolderOpened,
+  HomeFilled,
   SwitchButton
 } from '@element-plus/icons-vue'
 
@@ -15,9 +17,25 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore(pinia)
 
+const userMgmtChildren = computed(() => {
+  const children = [
+    { label: '后台用户管理', to: '/admin/users', perm: 'user:list' },
+    { label: '前台用户管理', to: '/admin/accounts', perm: 'account:list' }
+  ]
+  return children.filter((i) => auth.hasPerm(i.perm))
+})
+
+const owChildren = computed(() => {
+  const children = [
+    { label: 'OW 英雄管理', to: '/admin/ow/heroes', perm: 'ow:hero:list' },
+    { label: 'OW 装备管理', to: '/admin/ow/items', perm: 'ow:item:list' }
+  ]
+  return children.filter((i) => auth.hasPerm(i.perm))
+})
+
 const menuItems = computed(() => {
   const items = [
-    { label: '用户管理', to: '/admin/users', icon: User, perm: 'user:list' },
+    { label: '文件管理', to: '/admin/files', icon: FolderOpened, perm: 'file:list' },
     { label: '角色管理', to: '/admin/roles', icon: Setting, perm: 'role:list' },
     { label: '权限点', to: '/admin/permissions', icon: Lock, perm: 'permission:list' },
     { label: '审计日志', to: '/admin/audits', icon: Notebook, perm: 'audit:list' }
@@ -31,6 +49,10 @@ const onLogout = async () => {
   await auth.logout()
   router.replace('/admin/login')
 }
+
+const goSiteHome = () => {
+  router.push('/')
+}
 </script>
 
 <template>
@@ -42,6 +64,26 @@ const onLogout = async () => {
       </div>
 
       <el-menu :default-active="activeMenu" class="admin-menu" router>
+        <el-sub-menu v-if="userMgmtChildren.length" index="user-mgmt">
+          <template #title>
+            <el-icon><component :is="User" /></el-icon>
+            <span>用户管理</span>
+          </template>
+          <el-menu-item v-for="item in userMgmtChildren" :key="item.to" :index="item.to">
+            <span>{{ item.label }}</span>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu v-if="owChildren.length" index="ow-mgmt">
+          <template #title>
+            <el-icon><component :is="Setting" /></el-icon>
+            <span>OW 配置</span>
+          </template>
+          <el-menu-item v-for="item in owChildren" :key="item.to" :index="item.to">
+            <span>{{ item.label }}</span>
+          </el-menu-item>
+        </el-sub-menu>
+
         <el-menu-item
           v-for="item in menuItems"
           :key="item.to"
@@ -62,6 +104,9 @@ const onLogout = async () => {
           <div class="admin-user">
             <span class="admin-user-name">{{ auth.me?.displayName || auth.me?.username }}</span>
           </div>
+          <el-button type="default" :icon="HomeFilled" @click="goSiteHome">
+            前台首页
+          </el-button>
           <el-button type="default" :icon="SwitchButton" @click="onLogout">
             退出
           </el-button>
@@ -137,4 +182,3 @@ const onLogout = async () => {
   padding: 16px;
 }
 </style>
-

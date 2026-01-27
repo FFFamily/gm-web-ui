@@ -77,3 +77,253 @@ button {
   background: rgba(16, 185, 129, 0.18);
   color: #065f46;
 }
+
+/* -------------------------------------------------------------------------- */
+/* GM Web UI - Shared UI primitives (auth/profile pages)                       */
+/* Keep these low-level and reusable; page-specific layout stays in the page.  */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  /* Brand tokens (align with existing emerald theme used by the home/navbar) */
+  --gm-text: #0f172a;
+  --gm-muted: #64748b;
+  --gm-border: rgba(16, 185, 129, 0.14);
+  --gm-ring: rgba(16, 185, 129, 0.18);
+  --gm-shadow: 0 18px 55px rgba(2, 44, 34, 0.12);
+  --gm-surface: rgba(255, 255, 255, 0.9);
+}
+
+@layer components {
+  .gm-auth-page {
+    min-height: 100vh;
+    padding: 120px 16px 32px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.18) 0%, transparent 60%),
+      radial-gradient(circle at 90% 70%, rgba(52, 211, 153, 0.16) 0%, transparent 55%),
+      #ffffff;
+  }
+
+  .gm-auth-panel {
+    width: 420px;
+    max-width: 100%;
+    background: var(--gm-surface);
+    border: 1px solid var(--gm-border);
+    border-radius: 16px;
+    box-shadow: var(--gm-shadow);
+    padding: 22px 22px 18px;
+    backdrop-filter: blur(12px);
+  }
+
+  .gm-brand {
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(16, 185, 129, 0.92);
+  }
+
+  .gm-title {
+    margin-top: 8px;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--gm-text);
+  }
+
+  .gm-subtitle {
+    margin-top: 4px;
+    margin-bottom: 14px;
+    color: var(--gm-muted);
+    font-size: 13px;
+  }
+
+  .gm-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .gm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .gm-label {
+    color: #334155;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .gm-input {
+    width: 100%;
+    height: 40px;
+    border: 1px solid rgba(2, 6, 23, 0.12);
+    border-radius: 12px;
+    padding: 0 12px;
+    font-size: 14px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+    transition: box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+
+  .gm-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .gm-input:focus {
+    border-color: rgba(16, 185, 129, 0.55);
+    box-shadow: 0 0 0 4px var(--gm-ring);
+    background: #ffffff;
+  }
+
+  .gm-input[aria-invalid='true'] {
+    border-color: rgba(220, 38, 38, 0.55);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+  }
+
+  .gm-alert {
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .gm-alert--error {
+    color: #991b1b;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.18);
+  }
+
+  .gm-alert--success {
+    color: #065f46;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.18);
+  }
+
+  .gm-btn-primary {
+    height: 44px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6ee7b7 0%, #34d399 45%, #10b981 100%);
+    color: #064e3b;
+    font-weight: 900;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: filter 180ms ease, transform 180ms ease, opacity 180ms ease;
+  }
+
+  .gm-btn-primary:hover {
+    filter: brightness(1.02);
+  }
+
+  .gm-btn-primary:active {
+    transform: translateY(1px);
+  }
+
+  .gm-btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .gm-btn-ghost {
+    height: 38px;
+    border: 1px solid rgba(2, 6, 23, 0.12);
+    border-radius: 12px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--gm-text);
+    font-weight: 800;
+    transition: background 180ms ease, border-color 180ms ease;
+  }
+
+  .gm-btn-ghost:hover {
+    background: rgba(248, 250, 252, 0.95);
+    border-color: rgba(16, 185, 129, 0.18);
+  }
+
+  .gm-link {
+    color: #10b981;
+    font-weight: 800;
+  }
+
+  .gm-link:focus-visible {
+    outline: 3px solid rgba(16, 185, 129, 0.35);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+
+  .gm-hint {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--gm-muted);
+  }
+
+  .gm-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(148, 163, 184, 0.16);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .gm-page-wrap {
+    padding: 120px 16px 40px;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(16, 185, 129, 0.12) 0%, transparent 62%),
+      radial-gradient(circle at 90% 70%, rgba(52, 211, 153, 0.1) 0%, transparent 55%),
+      #ffffff;
+    min-height: 100vh;
+  }
+
+  .gm-card {
+    background: var(--gm-surface);
+    border: 1px solid var(--gm-border);
+    border-radius: 16px;
+    box-shadow: var(--gm-shadow);
+    backdrop-filter: blur(12px);
+  }
+
+  .gm-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: #064e3b;
+    font-weight: 900;
+    background: linear-gradient(135deg, rgba(110, 231, 183, 0.7) 0%, rgba(16, 185, 129, 0.45) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    box-shadow: 0 10px 24px rgba(2, 44, 34, 0.1);
+    user-select: none;
+  }
+
+  .gm-kv {
+    border: 1px solid rgba(2, 6, 23, 0.06);
+    border-radius: 14px;
+    background: rgba(248, 250, 252, 0.85);
+    padding: 12px 14px;
+  }
+
+  .gm-kv-label {
+    color: #64748b;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .gm-kv-value {
+    margin-top: 6px;
+    color: var(--gm-text);
+    font-weight: 800;
+    font-size: 14px;
+    word-break: break-word;
+  }
+}

@@ -25,6 +25,7 @@ const qualityColors = {
 
 // 获取图片路径 - 使用 imageMap 获取已导入的图片 URL
 const getItemImage = (item) => {
+  if (item?.imgUrl) return item.imgUrl
   if (item && item.img && imageMap[item.img]) {
     return imageMap[item.img]
   }

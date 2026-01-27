@@ -1,7 +1,17 @@
 <script setup>
+import { computed, onMounted } from 'vue'
+import { gameStore } from '~/stores/gameStore'
+
+import HeroSelect from './components/HeroSelect.vue'
 import StoreComponent from './components/StoreComponent.vue'
 import HeroPanel from './components/HeroPanel.vue'
 import InventoryPanel from './components/InventoryPanel.vue'
+
+onMounted(() => {
+  gameStore.bootstrap()
+})
+
+const selectedHeroName = computed(() => gameStore.selectedHero?.heroName)
 </script>
 
 <template>
@@ -10,9 +20,18 @@ import InventoryPanel from './components/InventoryPanel.vue'
       <h1 class="ow-title">
         角斗领域：军械库模拟器
       </h1>
+
+      <div v-if="selectedHeroName" class="ow-subtitle">
+        当前英雄：{{ selectedHeroName }}
+        <button class="ow-switch" @click="gameStore.clearHero()">切换英雄</button>
+      </div>
+
+      <div v-if="!gameStore.selectedHero" class="ow-hero-select-wrapper">
+        <HeroSelect />
+      </div>
       
       <!-- 三列布局：装备栏（左）、军械库（中）、面板（右） -->
-      <div class="ow-main-grid">
+      <div v-else class="ow-main-grid">
         <!-- 左侧：装备栏 -->
         <div class="ow-inventory-section">
           <InventoryPanel />
@@ -90,6 +109,34 @@ import InventoryPanel from './components/InventoryPanel.vue'
   color: #111827;
 }
 
+.ow-subtitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  color: #334155;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.ow-switch {
+  border: 1px solid #e5e7eb;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.ow-switch:hover {
+  background: #f9fafb;
+}
+
+.ow-hero-select-wrapper {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
 .ow-main-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -115,4 +162,3 @@ import InventoryPanel from './components/InventoryPanel.vue'
   min-width: 0;
 }
 </style>
-

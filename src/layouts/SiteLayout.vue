@@ -1,13 +1,20 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAccountAuthStore } from '~/stores/accountAuth'
+import { pinia } from '~/stores/pinia'
 
 const router = useRouter()
 const route = useRoute()
+const accountAuth = useAccountAuthStore(pinia)
 const isScrolled = ref(false)
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
+  // If user has an existing token, try to fetch profile so we can show username in navbar.
+  if (accountAuth.token && !accountAuth.me) {
+    accountAuth.bootstrap().catch(() => {})
+  }
 })
 
 onUnmounted(() => {
@@ -41,6 +48,17 @@ const goToHome = () => {
 const goToAdmin = () => {
   router.push('/admin')
 }
+
+const goToAccount = () => {
+  router.push(accountAuth.token ? '/account/me' : '/account/login')
+}
+
+const accountNavLabel = computed(() => {
+  if (!accountAuth.token) return '登录'
+  return accountAuth.me?.displayName || accountAuth.me?.username || '我的账号'
+})
+
+const accountNavHref = computed(() => (accountAuth.token ? '/account/me' : '/account/login'))
 </script>
 
 <template>
@@ -56,6 +74,7 @@ const goToAdmin = () => {
           <li><a @click.prevent="scrollToSection('features')" href="#features">功能</a></li>
           <li><a @click.prevent="scrollToSection('about')" href="#about">关于</a></li>
           <li><a @click.prevent="scrollToSection('contact')" href="#contact">联系</a></li>
+          <li><a @click.prevent="goToAccount" :href="accountNavHref">{{ accountNavLabel }}</a></li>
           <li><a @click.prevent="goToAdmin" href="/admin">后台管理</a></li>
         </ul>
       </div>

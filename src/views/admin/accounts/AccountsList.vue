@@ -1,11 +1,8 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import { apiUserList, apiUserResetPassword } from '~/api/users'
-
-const router = useRouter()
+import { apiAccountAdminList, apiAccountAdminResetPassword, apiAccountAdminUpdate } from '~/api/accounts'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -33,7 +30,7 @@ const fetchList = async () => {
       keyword: query.keyword?.trim() || undefined,
       enabled: enabledQueryValue.value
     }
-    const data = await apiUserList(params)
+    const data = await apiAccountAdminList(params)
     tableData.value = data?.records || []
     total.value = Number(data?.total || 0)
   } finally {
@@ -54,9 +51,7 @@ const onReset = async () => {
   await fetchList()
 }
 
-const goCreate = () => router.push('/admin/users/new')
-const goDetail = (row) => router.push(`/admin/users/${row.id}`)
-const goEdit = (row) => router.push(`/admin/users/${row.id}/edit`)
+const formatLdt = (s) => (s ? String(s).replace('T', ' ') : '-')
 
 const resetPwdDialog = reactive({
   open: false,
@@ -70,7 +65,7 @@ const onResetPassword = async (row) => {
   resetPwdDialog.tempPassword = ''
 
   try {
-    const data = await apiUserResetPassword(row.id)
+    const data = await apiAccountAdminResetPassword(row.id)
     resetPwdDialog.tempPassword = data?.tempPassword || ''
   } catch {
     resetPwdDialog.open = false
@@ -88,7 +83,16 @@ const copyTempPassword = async () => {
   }
 }
 
-const formatLdt = (s) => (s ? String(s).replace('T', ' ') : '-')
+const onToggleEnabled = async (row) => {
+  const nextEnabled = !row.enabled
+  try {
+    await apiAccountAdminUpdate(row.id, { displayName: row.displayName || row.username, enabled: nextEnabled })
+    row.enabled = nextEnabled
+    ElMessage.success('已更新')
+  } catch {
+    // keep old state
+  }
+}
 
 onMounted(fetchList)
 </script>
@@ -97,10 +101,9 @@ onMounted(fetchList)
   <el-card shadow="never">
     <template #header>
       <div class="page-header">
-        <span>后台用户列表</span>
+        <span>前台用户列表</span>
         <div class="header-actions">
           <el-button :icon="Refresh" @click="fetchList">刷新</el-button>
-          <el-button v-perm="'user:create'" type="primary" @click="goCreate">新增用户</el-button>
         </div>
       </div>
     </template>
@@ -132,11 +135,20 @@ onMounted(fetchList)
       <el-table-column prop="id" label="ID" width="90" />
       <el-table-column prop="username" label="用户名" min-width="160" />
       <el-table-column prop="displayName" label="显示名" min-width="160" />
-      <el-table-column label="状态" width="100">
+      <el-table-column label="状态" width="140">
         <template #default="{ row }">
           <el-tag :type="row.enabled ? 'success' : 'info'">
             {{ row.enabled ? '启用' : '禁用' }}
           </el-tag>
+          <el-button
+            v-perm="'account:update'"
+            size="small"
+            text
+            type="primary"
+            @click="onToggleEnabled(row)"
+          >
+            {{ row.enabled ? '禁用' : '启用' }}
+          </el-button>
         </template>
       </el-table-column>
       <el-table-column label="最近登录" min-width="180">
@@ -146,12 +158,10 @@ onMounted(fetchList)
         <template #default="{ row }">{{ formatLdt(row.createdAt) }}</template>
       </el-table-column>
 
-      <el-table-column label="操作" fixed="right" width="240">
+      <el-table-column label="操作" fixed="right" width="160">
         <template #default="{ row }">
-          <el-button v-perm="'user:read'" size="small" @click="goDetail(row)">详情</el-button>
-          <el-button v-perm="'user:update'" size="small" @click="goEdit(row)">编辑</el-button>
           <el-button
-            v-perm="'user:reset_password'"
+            v-perm="'account:reset_password'"
             size="small"
             type="warning"
             @click="onResetPassword(row)"
@@ -219,48 +229,38 @@ onMounted(fetchList)
   gap: 8px;
 }
 
-.filters {
-  margin-bottom: 12px;
-}
-
-.pager {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
 .pwd-box {
   margin-top: 12px;
-  padding: 12px;
   border: 1px solid rgba(2, 6, 23, 0.08);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
 }
 
 .pwd-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
   gap: 12px;
+  padding: 6px 0;
 }
 
 .pwd-label {
   color: #64748b;
-  font-size: 12px;
 }
 
 .pwd-value {
   color: #0f172a;
   font-weight: 700;
-  max-width: 340px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .pwd-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-    monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+
+.pager {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

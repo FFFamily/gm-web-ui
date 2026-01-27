@@ -1,20 +1,77 @@
 import { reactive } from 'vue'
-import { storeItems } from '../data/storeItems.js'
-import { heroStatConfigs, initialGold, heroInfo } from '../data/ow/baseInfo.js'
+import { getOwBaseInfo, getOwHeroDetail, listOwHeroes, listOwItems } from '../api/ow'
 
 // 游戏状态管理
 export const gameStore = reactive({
-  // 玩家资产
-  gold: initialGold,
-  
-  // 英雄属性配置
-  heroStatConfigs: heroStatConfigs,
-  
-  // 英雄属性值（从配置中提取初始值）
-  heroStats: { ...heroInfo },
-  
-  // 已购清单（最大6个槽位）
+  ready: false,
+  loading: false,
+
+  // Base info
+  initialGold: 0,
+  heroStatConfigs: [],
+
+  // Heroes
+  heroes: [],
+  selectedHero: null, // { heroCode, heroName, ... }
+
+  // Player state
+  gold: 0,
+  heroStats: {},
   inventory: [],
+
+  // Store items (for current hero)
+  items: [],
+
+  async bootstrap() {
+    if (this.loading) return
+    this.loading = true
+    try {
+      const [baseInfo, heroes] = await Promise.all([getOwBaseInfo(), listOwHeroes()])
+      this.initialGold = baseInfo?.initialGold ?? 80000
+      this.heroStatConfigs = (baseInfo?.statDefs || []).map((d) => ({
+        key: d.key,
+        label: d.label,
+        iconName: d.iconName,
+        color: d.colorClass,
+        unit: d.unit || '',
+        value: d.defaultValue || 0
+      }))
+      this.heroes = heroes || []
+      this.ready = true
+    } finally {
+      this.loading = false
+    }
+  },
+
+  async selectHero(heroCode) {
+    const detail = await getOwHeroDetail(heroCode)
+    this.selectedHero = detail
+    this.inventory = []
+    this.gold = detail?.initialGold ?? this.initialGold ?? 80000
+    this.heroStats = detail?.baseStats ? { ...detail.baseStats } : {}
+
+    const items = await listOwItems({ heroCode })
+    this.items = (items || []).map((i) => ({
+      id: i.itemCode,
+      code: i.itemCode,
+      name: i.itemName,
+      price: i.price,
+      quality: i.quality,
+      category: i.category,
+      img: i.imgKey,
+      imgUrl: i.imgUrl,
+      stats: i.stats || {},
+      isGlobal: i.isGlobal
+    }))
+  },
+
+  clearHero() {
+    this.selectedHero = null
+    this.items = []
+    this.inventory = []
+    this.gold = this.initialGold || 0
+    this.heroStats = {}
+  },
   
   // 购买物品
   purchaseItem(item) {
@@ -49,6 +106,3 @@ export const gameStore = reactive({
     return { success: true, message: '购买成功' }
   }
 })
-
-// 重新导出 storeItems，方便其他组件使用
-export { storeItems }
