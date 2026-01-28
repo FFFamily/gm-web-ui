@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import { apiFileDelete, apiFileList, apiFileUpload } from '~/api/files'
+import { apiFileList, apiFileUpload } from '~/api/files'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -52,6 +52,17 @@ const uploadDialog = reactive({
   uploading: false
 })
 
+const apiBase = computed(() => import.meta.env.VITE_API_BASE_URL || window.location.origin)
+
+const joinUrl = (base, path) => {
+  const b = String(base || '').replace(/\/+$/, '')
+  const p = String(path || '')
+  if (!p) return b || ''
+  if (p.startsWith('http://') || p.startsWith('https://')) return p
+  if (p.startsWith('/')) return `${b}${p}`
+  return `${b}/${p}`
+}
+
 const openUpload = () => {
   uploadDialog.open = true
   uploadDialog.biz = 'ow/item'
@@ -77,22 +88,15 @@ const doUpload = async () => {
     ElMessage.success('上传成功')
     uploadDialog.open = false
     await fetchList()
-    await navigator.clipboard?.writeText?.(window.location.origin + res.url)
+    const full = joinUrl(apiBase.value, res?.url)
+    await navigator.clipboard?.writeText?.(full)
   } finally {
     uploadDialog.uploading = false
   }
 }
 
-const onDelete = async (row) => {
-  await ElMessageBox.confirm(`确定删除文件记录 #${row.id}？（会尝试删除磁盘文件）`, '提示', { type: 'warning' })
-  await apiFileDelete(row.id)
-  ElMessage.success('已删除')
-  await fetchList()
-}
-
 const formatLdt = (s) => (s ? String(s).replace('T', ' ') : '-')
-const isImage = (row) => String(row.contentType || '').toLowerCase().startsWith('image/')
-const fullUrl = (row) => `${window.location.origin}${row.url}`
+const fileUrl = (row) => joinUrl(apiBase.value, row?.url)
 
 const pageTitle = computed(() => '文件管理')
 
@@ -133,18 +137,12 @@ onMounted(fetchList)
     <el-table v-loading="loading" :data="tableData" stripe style="width: 100%">
       <el-table-column prop="id" label="ID" width="90" />
       <el-table-column prop="biz" label="biz" min-width="140" />
-      <el-table-column label="预览" width="80">
-        <template #default="{ row }">
-          <el-image v-if="isImage(row)" :src="row.url" fit="cover" style="width: 40px; height: 40px; border-radius: 8px" />
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
       <el-table-column prop="originalName" label="原文件名" min-width="220" />
       <el-table-column prop="contentType" label="类型" min-width="180" />
       <el-table-column prop="sizeBytes" label="大小(B)" width="120" />
       <el-table-column label="URL" min-width="260">
         <template #default="{ row }">
-          <el-link :href="row.url" target="_blank" type="primary">{{ row.url }}</el-link>
+          <el-link :href="fileUrl(row)" target="_blank" type="primary">查看文件</el-link>
           <el-button
             size="small"
             text
@@ -152,7 +150,7 @@ onMounted(fetchList)
             @click="
               async () => {
                 try {
-                  await navigator.clipboard.writeText(fullUrl(row))
+                  await navigator.clipboard.writeText(fileUrl(row))
                   ElMessage.success('已复制')
                 } catch {
                   ElMessage.warning('复制失败')
@@ -166,12 +164,6 @@ onMounted(fetchList)
       </el-table-column>
       <el-table-column label="创建时间" min-width="180">
         <template #default="{ row }">{{ formatLdt(row.createdAt) }}</template>
-      </el-table-column>
-
-      <el-table-column label="操作" fixed="right" width="120">
-        <template #default="{ row }">
-          <el-button v-perm="'file:delete'" size="small" type="danger" @click="onDelete(row)">删除</el-button>
-        </template>
       </el-table-column>
     </el-table>
 
@@ -238,4 +230,3 @@ onMounted(fetchList)
   margin-top: 12px;
 }
 </style>
-

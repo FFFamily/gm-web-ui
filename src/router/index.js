@@ -35,6 +35,7 @@ import RoleDetail from '~/views/admin/roles/RoleDetail.vue'
 
 import PermissionsList from '~/views/admin/permissions/PermissionsList.vue'
 import AuditList from '~/views/admin/audits/AuditList.vue'
+import NotFound from '~/views/NotFound.vue'
 
 const routes = [
   {
@@ -82,7 +83,10 @@ const routes = [
       { path: 'permissions', name: 'AdminPermissions', component: PermissionsList, meta: { title: '权限点', perm: 'permission:list' } },
       { path: 'audits', name: 'AdminAudits', component: AuditList, meta: { title: '审计日志', perm: 'audit:list' } }
     ]
-  }
+  },
+
+  // Fallback
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound, meta: { title: '404' } }
 ]
 
 const router = createRouter({

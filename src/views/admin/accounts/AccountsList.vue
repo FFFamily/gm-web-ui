@@ -56,30 +56,34 @@ const formatLdt = (s) => (s ? String(s).replace('T', ' ') : '-')
 const resetPwdDialog = reactive({
   open: false,
   username: '',
-  tempPassword: ''
+  userId: null,
+  newPassword: '',
+  confirmPassword: '',
+  saving: false
 })
 
 const onResetPassword = async (row) => {
   resetPwdDialog.open = true
   resetPwdDialog.username = row.username
-  resetPwdDialog.tempPassword = ''
-
-  try {
-    const data = await apiAccountAdminResetPassword(row.id)
-    resetPwdDialog.tempPassword = data?.tempPassword || ''
-  } catch {
-    resetPwdDialog.open = false
-  }
+  resetPwdDialog.userId = row.id
+  resetPwdDialog.newPassword = ''
+  resetPwdDialog.confirmPassword = ''
+  resetPwdDialog.saving = false
 }
 
-const copyTempPassword = async () => {
-  const text = resetPwdDialog.tempPassword
-  if (!text) return
+const confirmResetPassword = async () => {
+  const pwd = resetPwdDialog.newPassword || ''
+  const confirm = resetPwdDialog.confirmPassword || ''
+  if (pwd.length < 6) return ElMessage.warning('密码至少 6 位')
+  if (pwd !== confirm) return ElMessage.warning('两次输入的密码不一致')
+
+  resetPwdDialog.saving = true
   try {
-    await navigator.clipboard.writeText(text)
-    ElMessage.success('已复制')
-  } catch {
-    ElMessage.warning('复制失败，请手动复制')
+    await apiAccountAdminResetPassword(resetPwdDialog.userId, { newPassword: pwd })
+    ElMessage.success('已重置')
+    resetPwdDialog.open = false
+  } finally {
+    resetPwdDialog.saving = false
   }
 }
 
@@ -196,7 +200,7 @@ onMounted(fetchList)
       type="warning"
       show-icon
       :closable="false"
-      title="临时密码只展示一次，请复制后线下转交用户"
+      title="请输入新的密码并确认"
     />
     <div class="pwd-box">
       <div class="pwd-row">
@@ -204,14 +208,18 @@ onMounted(fetchList)
         <span class="pwd-value">{{ resetPwdDialog.username }}</span>
       </div>
       <div class="pwd-row">
-        <span class="pwd-label">临时密码</span>
-        <span class="pwd-value pwd-mono">{{ resetPwdDialog.tempPassword || '-' }}</span>
+        <span class="pwd-label">新密码</span>
+        <el-input v-model="resetPwdDialog.newPassword" show-password placeholder="输入新密码" style="max-width: 320px" />
+      </div>
+      <div class="pwd-row">
+        <span class="pwd-label">确认密码</span>
+        <el-input v-model="resetPwdDialog.confirmPassword" show-password placeholder="再次输入" style="max-width: 320px" />
       </div>
     </div>
     <template #footer>
       <el-button @click="resetPwdDialog.open = false">关闭</el-button>
-      <el-button type="primary" :disabled="!resetPwdDialog.tempPassword" @click="copyTempPassword">
-        复制
+      <el-button type="primary" :loading="resetPwdDialog.saving" @click="confirmResetPassword">
+        确认重置
       </el-button>
     </template>
   </el-dialog>

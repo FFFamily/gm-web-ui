@@ -17,6 +17,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8081',
         changeOrigin: true
+      },
+      // Dev: allow opening `/files/*` from frontend origin as well.
+      '/files': {
+        target: 'http://localhost:8081',
+        changeOrigin: true
       }
     }
   },
