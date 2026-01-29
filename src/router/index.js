@@ -8,6 +8,8 @@ import AdminLayout from '~/layouts/AdminLayout.vue'
 
 import Home from '~/views/index.vue'
 import OwPage from '~/views/ow/index.vue'
+import OwLoadoutDetail from '~/views/ow/loadouts/Detail.vue'
+import OwLoadoutNew from '~/views/ow/loadouts/New.vue'
 
 import AdminLogin from '~/views/admin/Login.vue'
 import AdminForbidden from '~/views/admin/Forbidden.vue'
@@ -25,6 +27,7 @@ import AccountsList from '~/views/admin/accounts/AccountsList.vue'
 
 import OwHeroesList from '~/views/admin/ow/heroes/HeroesList.vue'
 import OwItemsList from '~/views/admin/ow/items/ItemsList.vue'
+import OwLoadoutsList from '~/views/admin/ow/loadouts/LoadoutsList.vue'
 
 import FilesList from '~/views/admin/files/FilesList.vue'
 
@@ -44,6 +47,8 @@ const routes = [
     children: [
       { path: '', name: 'Home', component: Home },
       { path: 'ow', name: 'Ow', component: OwPage },
+      { path: 'ow/loadouts/new', name: 'OwLoadoutNew', component: OwLoadoutNew, meta: { title: '创建清单', requiresAccountAuth: true } },
+      { path: 'ow/loadouts/:id', name: 'OwLoadoutDetail', component: OwLoadoutDetail, meta: { title: '清单详情' } },
 
       // Account: front-end user (no permission system)
       { path: 'account', redirect: '/account/me' },
@@ -72,6 +77,7 @@ const routes = [
 
       { path: 'ow/heroes', name: 'AdminOwHeroes', component: OwHeroesList, meta: { title: 'OW 英雄管理', perm: 'ow:hero:list' } },
       { path: 'ow/items', name: 'AdminOwItems', component: OwItemsList, meta: { title: 'OW 装备管理', perm: 'ow:item:list' } },
+      { path: 'ow/loadouts', name: 'AdminOwLoadouts', component: OwLoadoutsList, meta: { title: 'OW 清单管理', perm: 'ow:loadout:list' } },
 
       { path: 'files', name: 'AdminFiles', component: FilesList, meta: { title: '文件管理', perm: 'file:list' } },
 

@@ -106,7 +106,7 @@ const goToOwPage = () => {
       <div class="hero-content">
         <div class="hero-badge">
           <Sparkles class="hero-badge-icon" aria-hidden="true" />
-          <span>新功能：守望先锋军械库模拟器</span>
+          <span>新功能：守望先锋军械库社区</span>
         </div>
         <h1 class="hero-title">
           <span class="title-line">欢迎来到</span>
@@ -138,20 +138,20 @@ const goToOwPage = () => {
         <h2 class="ow-section-title animate-on-scroll">守望先锋角斗领域</h2>
         <p class="section-subtitle animate-on-scroll">军械库 · 配装 · 数据，一站式整理</p>
         <div class="ow-section animate-on-scroll">
-          <div class="ow-content">
-            <p class="ow-description">
-              快速试配武器与配件，查看关键数值与手感差异。
-            </p>
-            <button class="ow-link" type="button" @click="goToOwPage">
-              <Swords class="ow-link-icon" aria-hidden="true" />
-              军械库模拟器
-              <ArrowRight class="ow-link-arrow" aria-hidden="true" />
-            </button>
-          </div>
           <div class="ow-image">
             <div class="image-frame image-frame--compact">
               <img src="/ow-jiaodou-1.png" alt="守望先锋角斗领域" />
             </div>
+          </div>
+          <div class="ow-content">
+            <p class="ow-description">
+              浏览他人分享的英雄配装清单，快速找到好用搭配，也可发布自己的方案。
+            </p>
+            <button class="ow-link" type="button" @click="goToOwPage">
+              <Swords class="ow-link-icon" aria-hidden="true" />
+              进入军械库社区
+              <ArrowRight class="ow-link-arrow" aria-hidden="true" />
+            </button>
           </div>
         </div>
       </div>
@@ -773,9 +773,9 @@ const goToOwPage = () => {
 }
 
 .ow-section {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
   align-items: center;
   margin-top: 2.5rem;
 }
@@ -785,6 +785,8 @@ const goToOwPage = () => {
   flex-direction: column;
   justify-content: center;
   gap: 1.25rem;
+  align-items: center;
+  text-align: center;
   animation: slideInLeft 0.8s ease-out;
 }
 
@@ -854,6 +856,7 @@ const goToOwPage = () => {
   animation: slideInRight 0.8s ease-out;
   overflow: visible;
   position: relative;
+  width: 100%;
 }
 
 @keyframes slideInRight {
@@ -869,6 +872,8 @@ const goToOwPage = () => {
 
 .ow-image .image-frame--compact {
   transform: translateZ(0) scale(1.08);
+  max-width: 920px;
+  width: 100%;
 }
 
 .ow-image .image-frame--compact:hover {

@@ -28,7 +28,8 @@ const userMgmtChildren = computed(() => {
 const owChildren = computed(() => {
   const children = [
     { label: 'OW 英雄管理', to: '/admin/ow/heroes', perm: 'ow:hero:list' },
-    { label: 'OW 装备管理', to: '/admin/ow/items', perm: 'ow:item:list' }
+    { label: 'OW 装备管理', to: '/admin/ow/items', perm: 'ow:item:list' },
+    { label: 'OW 清单管理', to: '/admin/ow/loadouts', perm: 'ow:loadout:list' }
   ]
   return children.filter((i) => auth.hasPerm(i.perm))
 })
