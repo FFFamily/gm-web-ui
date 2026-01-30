@@ -11,6 +11,14 @@ import {
   adminUpdateOwItem,
   adminListOwHeroes
 } from '~/api/owAdmin'
+import {
+  OW_ITEM_CATEGORY_OPTIONS,
+  OW_ITEM_QUALITY_OPTIONS,
+  OW_STAT_OPTIONS,
+  owCategoryLabel,
+  owQualityLabel,
+  owStatLabel
+} from '~/constants/owDict'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -154,6 +162,13 @@ const statsPayload = computed(() => {
   return obj
 })
 
+const usedStatKeys = computed(() => new Set((statRows.value || []).map((r) => (r.key || '').trim()).filter(Boolean)))
+const statKeyDisabled = (value, currentKey) => {
+  if (!value) return false
+  if (value === (currentKey || '').trim()) return false
+  return usedStatKeys.value.has(value)
+}
+
 const openCreate = async () => {
   dialog.open = true
   dialog.mode = 'create'
@@ -271,17 +286,12 @@ onMounted(async () => {
       </el-form-item>
       <el-form-item label="分类">
         <el-select v-model="query.category" clearable placeholder="全部" style="width: 140px">
-          <el-option label="weapon" value="weapon" />
-          <el-option label="skill" value="skill" />
-          <el-option label="survival" value="survival" />
-          <el-option label="device" value="device" />
+          <el-option v-for="o in OW_ITEM_CATEGORY_OPTIONS" :key="o.value" :label="o.label" :value="o.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="品质">
         <el-select v-model="query.quality" clearable placeholder="全部" style="width: 140px">
-          <el-option label="green" value="green" />
-          <el-option label="blue" value="blue" />
-          <el-option label="purple" value="purple" />
+          <el-option v-for="o in OW_ITEM_QUALITY_OPTIONS" :key="o.value" :label="o.label" :value="o.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="全局">
@@ -307,8 +317,12 @@ onMounted(async () => {
       <el-table-column prop="id" label="ID" width="90" />
       <el-table-column prop="itemCode" label="itemCode" min-width="160" />
       <el-table-column prop="itemName" label="名称" min-width="160" />
-      <el-table-column prop="category" label="分类" width="110" />
-      <el-table-column prop="quality" label="品质" width="110" />
+      <el-table-column prop="category" label="分类" width="110">
+        <template #default="{ row }">{{ owCategoryLabel(row.category) }}</template>
+      </el-table-column>
+      <el-table-column prop="quality" label="品质" width="110">
+        <template #default="{ row }">{{ owQualityLabel(row.quality) }}</template>
+      </el-table-column>
       <el-table-column prop="price" label="价格" width="110" />
       <el-table-column label="全局" width="90">
         <template #default="{ row }">
@@ -360,17 +374,12 @@ onMounted(async () => {
       </el-form-item>
       <el-form-item label="分类" required>
         <el-select v-model="form.category" style="width: 240px">
-          <el-option label="weapon" value="weapon" />
-          <el-option label="skill" value="skill" />
-          <el-option label="survival" value="survival" />
-          <el-option label="device" value="device" />
+          <el-option v-for="o in OW_ITEM_CATEGORY_OPTIONS" :key="o.value" :label="o.label" :value="o.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="品质" required>
         <el-select v-model="form.quality" style="width: 240px">
-          <el-option label="green" value="green" />
-          <el-option label="blue" value="blue" />
-          <el-option label="purple" value="purple" />
+          <el-option v-for="o in OW_ITEM_QUALITY_OPTIONS" :key="o.value" :label="o.label" :value="o.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="价格" required>
@@ -443,11 +452,20 @@ onMounted(async () => {
       <el-divider content-position="left">属性（stats）</el-divider>
       <div class="stats-box">
         <div v-for="(r, idx) in statRows" :key="idx" class="stats-row">
-          <el-input v-model="r.key" placeholder="key，例如 damage / cooldown / weaponStrength" style="width: 260px" />
+          <el-select v-model="r.key" filterable placeholder="选择属性" style="width: 260px" clearable>
+            <el-option
+              v-for="o in OW_STAT_OPTIONS"
+              :key="o.value"
+              :label="o.label"
+              :value="o.value"
+              :disabled="statKeyDisabled(o.value, r.key)"
+            />
+          </el-select>
           <el-input-number v-model="r.value" :step="1" style="width: 180px" />
           <el-button type="danger" plain @click="removeStatRow(idx)" :disabled="statRows.length <= 1">删除</el-button>
         </div>
         <el-button type="primary" plain @click="addStatRow">新增一行</el-button>
+        <div class="hint">提示：属性 key 统一从下拉选择；显示时使用中文 label（例如 {{ owStatLabel('weaponStrength') }}）。</div>
       </div>
     </el-form>
 

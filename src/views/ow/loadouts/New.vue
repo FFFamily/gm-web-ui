@@ -5,6 +5,8 @@ import { ElMessage } from 'element-plus'
 import { listOwHeroes, listOwItems } from '~/api/ow'
 import { owCommunityCreateLoadout } from '~/api/owCommunity'
 import { imageMap } from '~/assets/ow/imageMap'
+import { owCategoryLabel, owQualityLabel } from '~/constants/owDict'
+import { owFormatStatValue, owStatLabel } from '~/constants/owDict'
 
 const router = useRouter()
 
@@ -113,32 +115,8 @@ const switchTab = async (key) => {
   await loadItems(false)
 }
 
-const getStatLabel = (key) => {
-  const labels = {
-    damage: '伤害',
-    cooldown: '冷却缩减',
-    health: '生命值',
-    lifesteal: '吸血',
-    weaponStrength: '武器强度',
-    skillStrength: '技能强度',
-    attackSpeed: '攻击速度',
-    cooldownReduction: '冷却缩减',
-    maxAmmo: '最大弹药',
-    weaponLifesteal: '武器吸血',
-    skillLifesteal: '技能吸血',
-    moveSpeed: '移速',
-    reloadSpeed: '装填速度',
-    meleeDamage: '近战伤害',
-    criticalDamage: '暴击伤害'
-  }
-  return labels[key] || key
-}
-
-const getStatValue = (key, value) => {
-  if (value == null) return ''
-  const percentKeys = ['damage', 'cooldown', 'lifesteal', 'attackSpeed', 'cooldownReduction', 'moveSpeed', 'reloadSpeed']
-  return percentKeys.includes(key) ? `+${value}%` : `+${value}`
-}
+const getStatLabel = (key) => owStatLabel(key)
+const getStatValue = (key, value) => owFormatStatValue(key, value)
 
 const publish = async () => {
   if (!form.heroCode) return ElMessage.warning('请选择英雄')
@@ -368,7 +346,7 @@ onMounted(async () => {
                 <div v-else class="img-fallback small">{{ (it.itemName || '').charAt(0) }}</div>
                 <div class="selected-info">
                   <div class="selected-name">{{ it.itemName }}</div>
-                  <div class="selected-meta">{{ it.category }} · {{ it.quality }} · {{ it.price }} 金币</div>
+                  <div class="selected-meta">{{ owCategoryLabel(it.category) }} · {{ owQualityLabel(it.quality) }} · {{ it.price }} 金币</div>
                 </div>
               </div>
               <el-button type="danger" plain size="small" @click="removeItem(idx)">移除</el-button>

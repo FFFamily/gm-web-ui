@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { gameStore } from '../../../stores/gameStore'
 import { ShoppingCart, Coins } from 'lucide-vue-next'
 import { imageMap } from '../../../assets/ow/imageMap.js'
+import { owFormatStatValue, owStatLabel } from '~/constants/owDict'
 
 const activeTab = ref('weapon')
 const hoveredItem = ref(null)
@@ -63,23 +64,8 @@ const tabs = [
   { key: 'device', label: '装置' }
 ]
 
-// 获取属性显示名称
-const getStatLabel = (key) => {
-  const labels = {
-    damage: '伤害',
-    cooldown: '冷却缩减',
-    health: '生命值',
-    lifesteal: '吸血',
-    weaponStrength: '武器强度'
-  }
-  return labels[key] || key
-}
-
-// 获取属性值显示格式
-const getStatValue = (key, value) => {
-  const percentKeys = ['damage', 'cooldown', 'lifesteal']
-  return percentKeys.includes(key) ? `+${value}%` : `+${value}`
-}
+const getStatLabel = (key) => owStatLabel(key)
+const getStatValue = (key, value) => owFormatStatValue(key, value)
 
 // 获取图片路径 - 使用 imageMap 获取已导入的图片 URL
 const getItemImage = (item) => {

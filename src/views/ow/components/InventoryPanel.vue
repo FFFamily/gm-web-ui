@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { gameStore } from '~/stores/gameStore'
 import { Package } from 'lucide-vue-next'
 import { imageMap } from '~/assets/ow/imageMap.js'
+import { owFormatStatValue, owStatLabel } from '~/constants/owDict'
 
 const inventory = computed(() => gameStore.inventory)
 const hoveredSlot = ref(null)
@@ -83,10 +84,8 @@ const getItemImage = (item) => {
               :key="key"
               class="tooltip-stat"
             >
-              <span class="tooltip-stat-label">{{ key }}</span>
-              <span class="tooltip-stat-value">
-                +{{ value }}{{ key === 'damage' || key === 'cooldown' || key === 'lifesteal' ? '%' : '' }}
-              </span>
+              <span class="tooltip-stat-label">{{ owStatLabel(key) }}</span>
+              <span class="tooltip-stat-value">{{ owFormatStatValue(key, value) }}</span>
             </div>
           </div>
         </div>

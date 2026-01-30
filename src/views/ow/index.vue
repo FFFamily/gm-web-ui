@@ -51,33 +51,6 @@ const getItemImage = (it) => {
   return null
 }
 
-const statLabels = {
-  damage: '伤害',
-  cooldown: '冷却',
-  health: '生命',
-  lifesteal: '吸血',
-  weaponStrength: '武器强度',
-  skillStrength: '技能强度',
-  attackSpeed: '攻速',
-  cooldownReduction: '减CD',
-  maxAmmo: '弹药',
-  weaponLifesteal: '武器吸血',
-  skillLifesteal: '技能吸血',
-  moveSpeed: '移速',
-  reloadSpeed: '装填',
-  meleeDamage: '近战',
-  criticalDamage: '暴伤'
-}
-
-const formatStat = (s) => {
-  if (!s) return ''
-  const key = s.key
-  const v = Number(s.value || 0)
-  const label = statLabels[key] || key
-  const sign = v >= 0 ? '+' : ''
-  return `${label} ${sign}${v}`
-}
-
 const fetchList = async () => {
   loading.value = true
   try {
@@ -287,9 +260,6 @@ onMounted(async () => {
                 <div v-else class="mini-fallback">{{ (it.itemName || '').slice(0, 1) }}</div>
               </div>
             </div>
-            <div class="ow-card-chips">
-              <span v-for="s in row.topStats || []" :key="s.key" class="chip">{{ formatStat(s) }}</span>
-            </div>
             <div class="ow-card-foot">
               <div class="foot-left">总价 {{ row.totalPrice ?? 0 }}</div>
               <div class="foot-right">
@@ -319,17 +289,15 @@ onMounted(async () => {
               </div>
               <div class="ow-card-hero">{{ row.heroName }}</div>
             </div>
-            <div v-if="row.description" class="ow-card-desc">{{ row.description }}</div>
+            <div class="ow-card-desc">
+              {{ row.description || '\u00A0' }}
+            </div>
 
             <div class="ow-card-preview">
               <div v-for="it in row.itemsPreview || []" :key="it.itemCode" class="mini">
                 <img v-if="getItemImage(it)" :src="getItemImage(it)" :alt="it.itemName" />
                 <div v-else class="mini-fallback">{{ (it.itemName || '').slice(0, 1) }}</div>
               </div>
-            </div>
-
-            <div class="ow-card-chips">
-              <span v-for="s in row.topStats || []" :key="s.key" class="chip">{{ formatStat(s) }}</span>
             </div>
 
             <div class="ow-card-meta">
@@ -756,6 +724,7 @@ onMounted(async () => {
   color: #475569;
   font-size: 13px;
   line-height: 1.6;
+  min-height: 42px; /* keep card layout stable even when description is empty */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -812,23 +781,6 @@ onMounted(async () => {
 .mini-fallback {
   font-weight: 900;
   color: rgba(2, 6, 23, 0.6);
-}
-
-.ow-card-chips {
-  margin-top: 10px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.chip {
-  font-size: 12px;
-  font-weight: 900;
-  color: #0f172a;
-  background: rgba(2, 6, 23, 0.04);
-  border: 1px solid rgba(2, 6, 23, 0.06);
-  padding: 4px 8px;
-  border-radius: 999px;
 }
 
 .ow-card-meta {
