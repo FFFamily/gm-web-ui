@@ -48,6 +48,8 @@ const onLogout = async () => {
   await auth.logout()
   router.replace('/')
 }
+
+const goTeams = () => router.push('/account/teams')
 </script>
 
 <template>
@@ -63,7 +65,10 @@ const onLogout = async () => {
             </div>
           </div>
 
-          <button class="gm-btn-ghost w-full sm:w-auto" type="button" @click="onLogout">退出登录</button>
+          <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <button class="gm-btn-ghost w-full sm:w-auto" type="button" @click="goTeams">我的队伍</button>
+            <button class="gm-btn-ghost w-full sm:w-auto" type="button" @click="onLogout">退出登录</button>
+          </div>
         </div>
 
         <div class="mt-5 grid gap-3 md:grid-cols-2">

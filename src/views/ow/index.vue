@@ -236,6 +236,7 @@ onMounted(async () => {
             查询
           </button>
           <button class="btn btn-primary" @click="goCreate">创建清单</button>
+          <button class="btn btn-secondary" @click="router.push('/ow/lfg')">去组队</button>
         </div>
       </div>
 

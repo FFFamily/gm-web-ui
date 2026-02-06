@@ -10,6 +10,10 @@ import Home from '~/views/index.vue'
 import OwPage from '~/views/ow/index.vue'
 import OwLoadoutDetail from '~/views/ow/loadouts/Detail.vue'
 import OwLoadoutNew from '~/views/ow/loadouts/New.vue'
+import OwLfgIndex from '~/views/ow/lfg/Index.vue'
+import OwLfgNew from '~/views/ow/lfg/New.vue'
+import OwLfgInvite from '~/views/ow/lfg/Invite.vue'
+import OwLfgTeam from '~/views/ow/lfg/Team.vue'
 
 import AdminLogin from '~/views/admin/Login.vue'
 import AdminForbidden from '~/views/admin/Forbidden.vue'
@@ -17,6 +21,7 @@ import AdminForbidden from '~/views/admin/Forbidden.vue'
 import AccountLogin from '~/views/account/Login.vue'
 import AccountProfile from '~/views/account/Profile.vue'
 import AccountRegister from '~/views/account/Register.vue'
+import AccountTeams from '~/views/account/Teams.vue'
 
 import UsersList from '~/views/admin/users/UsersList.vue'
 import UserCreate from '~/views/admin/users/UserCreate.vue'
@@ -49,12 +54,17 @@ const routes = [
       { path: 'ow', name: 'Ow', component: OwPage },
       { path: 'ow/loadouts/new', name: 'OwLoadoutNew', component: OwLoadoutNew, meta: { title: '创建清单', requiresAccountAuth: true } },
       { path: 'ow/loadouts/:id', name: 'OwLoadoutDetail', component: OwLoadoutDetail, meta: { title: '清单详情' } },
+      { path: 'ow/lfg', name: 'OwLfg', component: OwLfgIndex, meta: { title: 'OW 组队' } },
+      { path: 'ow/lfg/new', name: 'OwLfgNew', component: OwLfgNew, meta: { title: '创建队伍', requiresAccountAuth: true } },
+      { path: 'ow/lfg/t/:inviteCode', name: 'OwLfgInvite', component: OwLfgInvite, meta: { title: '队伍邀请' } },
+      { path: 'ow/lfg/teams/:id', name: 'OwLfgTeam', component: OwLfgTeam, meta: { title: '队伍详情', requiresAccountAuth: true } },
 
       // Account: front-end user (no permission system)
       { path: 'account', redirect: '/account/me' },
       { path: 'account/login', name: 'AccountLogin', component: AccountLogin, meta: { title: '登录' } },
       { path: 'account/register', name: 'AccountRegister', component: AccountRegister, meta: { title: '注册' } },
-      { path: 'account/me', name: 'AccountMe', component: AccountProfile, meta: { title: '我的账号', requiresAccountAuth: true } }
+      { path: 'account/me', name: 'AccountMe', component: AccountProfile, meta: { title: '我的账号', requiresAccountAuth: true } },
+      { path: 'account/teams', name: 'AccountTeams', component: AccountTeams, meta: { title: '我的队伍', requiresAccountAuth: true } }
     ]
   },
 
