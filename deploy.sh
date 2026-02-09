@@ -2,7 +2,7 @@
 
 # 部署脚本 - 自动打包并使用 scp 上传文件
 # 使用方法: ./deploy.sh user@server.com:/path/to/target
-
+# ./deploy.sh root@8.134.152.53:/root/data/nginx/gm
 set -e  # 遇到错误立即退出
 
 # 颜色定义
